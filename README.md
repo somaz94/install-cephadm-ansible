@@ -14,9 +14,19 @@ Access to a terminal with SSH capabilities.
 
 <br/>
 
-### Step 1: Clone cephadm-ansible
+### Step 1: Install Python & Clone cephadm-ansible
 Clone the `cephadm-ansible` repository to your local machine and set up a virtual environment for Python.
 ```bash
+# Install Python(Debian/Ubuntu)
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get -y update
+sudo apt install -y python3.10 python3-pip git python3.10-venv
+
+# Install Python(RedHat/CentOS)
+sudo dnf module enable python310 -y
+sudo dnf install -y python310 git python3-pip python3.10-venv
+
+# Clone cephadm-ansible
 git clone https://github.com/ceph/cephadm-ansible
 VENVDIR=cephadm-venv
 CEPHADMDIR=cephadm-ansible
