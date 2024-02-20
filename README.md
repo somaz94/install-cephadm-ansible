@@ -211,5 +211,7 @@ persistentvolumeclaim/ceph-rbd-pvc   Bound    pvc-83fd673e-077c-4d24-b9c9-290118
 - [Cephadm-Ansible GitHub](https://github.com/ceph/cephadm-ansible)
 - [Ceph-CSI GitHub](https://github.com/ceph/ceph-csi)
 
+<br/>
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
