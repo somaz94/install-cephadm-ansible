@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Define variables
+# Define variables(Modify)
 SSH_KEY="/home/somaz/.ssh/id_rsa_ansible" # SSH KEY Path
 INVENTORY_FILE="inventory.ini" # Inventory Path
 CEPHADM_PREFLIGHT_PLAYBOOK="cephadm-preflight.yml"

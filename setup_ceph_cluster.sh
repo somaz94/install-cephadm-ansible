@@ -71,42 +71,15 @@ FSID=$(sudo ceph fsid)
 echo "Ceph FSID: $FSID"
 
 # Add and label hosts in the Ceph cluster
-echo "Adding and labeling hosts in the cluster..."
-for i in "${!HOST_GROUP[@]}"; do
-    host="${HOST_GROUP[$i]}"
-    ip="${HOST_IPS[$i]}"
-
-    # Add the public key of the Ceph cluster to each host
-    ssh-copy-id -f -i /etc/ceph/ceph.pub $host
-
-    # Add host to Ceph cluster
-    sudo ceph orch host add $host $ip
-
-    # Label host accordingly and verify
-    if [[ "$host" == "$ADMIN_HOST" ]]; then
-        # Apply 'mon' and 'mgr' labels to the admin host
-        sudo ceph orch host label add $host mon && \
-        sudo ceph orch host label add $host mgr && \
-        echo "Labels 'mon' and 'mgr' added to $host." || \
-        echo "Failed to add labels to $host."
-    elif [[ "$host" == "$OSD_HOST" ]]; then
-        # Apply 'osd' label to the OSD host
-        sudo ceph orch host label add $host osd && \
-        echo "Label 'osd' added to $host." || \
-        echo "Failed to add label to $host."
-    else
-        # Skip labeling for other hosts or handle differently
-        echo "No specific labels to apply for $host."
-    fi
-
-    # Verify the labels have been applied
-    labels=$(sudo ceph orch host ls --format=json | jq -r '.[] | select(.hostname == "'$host'") | .labels[]')
-    echo "Current labels for $host: $labels"
-done
+add_host_and_label
 
 # Prepare and add OSDs
 sleep 60
 add_osds_and_wait
+
+# all OSD hosts with '_no_schedule'
+sleep 60
+label_osd_hosts_no_schedule
 
 # Check Ceph cluster status and OSD creation
 check_osd_creation

@@ -70,19 +70,27 @@ cleanup_ceph_cluster() {
 
         # Dynamically determine whether to use Docker or Podman for container cleanup
         echo "Removing any leftover Ceph containers..."
-        if command -v docker &> /dev/null; then
-            container_runtime="docker"
-        elif command -v podman &> /dev/null; then
-            container_runtime="podman"
-        else
-            echo "No container runtime (Docker or Podman) found. Skipping container cleanup."
-            return 1 # Exit the function with an error status
-        fi
+        for host in "${HOST_GROUP[@]}"; do
+            echo "Cleaning up containers on $host..."
+            ssh "$SSH_USER@$host" '
+            if command -v docker &> /dev/null; then
+                container_runtime="docker"
+            elif command -v podman &> /dev/null; then
+                container_runtime="podman"
+            else
+                echo "No container runtime (Docker or Podman) found on '"$host"'. Skipping container cleanup."
+                exit 1 # Exit the SSH command with an error status
+            fi
 
-        # Remove Ceph containers using the detected container runtime
-        sudo $container_runtime ps -a | grep ceph | awk '{print $1}' | xargs -I {} sudo $container_runtime rm -f {}
-
-        echo "Leftover Ceph containers removed successfully."
+            # Remove Ceph containers using the detected container runtime
+            sudo $container_runtime ps -a | grep ceph | awk '"'"'{print $1}'"'"' | xargs -I {} sudo $container_runtime rm -f {}
+            '
+            if [ $? -ne 0 ]; then
+                echo "Error cleaning up containers on $host"
+            else
+                echo "Leftover Ceph containers removed successfully on $host."
+            fi
+        done
     else
         echo "Skipping Ceph cluster cleanup as per user's choice."
     fi
@@ -159,4 +167,59 @@ check_osd_creation() {
     echo "Checking Ceph cluster status and OSD creation..."
     sudo ceph -s
     sudo ceph osd tree
+}
+
+# Add and label hosts in the Ceph cluster
+add_host_and_label() {
+  echo "Adding and labeling hosts in the cluster..."
+  for i in "${!HOST_GROUP[@]}"; do
+      host="${HOST_GROUP[$i]}"
+      ip="${HOST_IPS[$i]}"
+
+      # Add the public key of the Ceph cluster to each host
+      ssh-copy-id -f -i /etc/ceph/ceph.pub $host
+
+      # Add host to Ceph cluster
+      sudo ceph orch host add $host $ip
+
+      # Apply 'mon' and 'mgr' labels to the admin host
+      if [[ "$host" == "$ADMIN_HOST" ]]; then
+          sudo ceph orch host label add $host mon && \
+          sudo ceph orch host label add $host mgr && \
+          echo "Labels 'mon' and 'mgr' added to $host."
+      fi
+
+      # Apply 'osd' label to the OSD host
+      if [[ "$host" == "$OSD_HOST" ]]; then
+          sudo ceph orch host label add $host osd && \
+          echo "Label 'osd' added to $host."
+      fi
+
+      # Apply '_no_schedule' label only to hosts that are neither ADMIN_HOST nor OSD_HOST
+      if [[ "$host" != "$ADMIN_HOST" ]] && [[ "$host" != "$OSD_HOST" ]]; then
+          sudo ceph orch host label add $host _no_schedule && \
+          echo "Label '_no_schedule' added to $host."
+      fi
+
+      # Verify the labels have been applied
+      labels=$(sudo ceph orch host ls --format=json | jq -r '.[] | select(.hostname == "'$host'") | .labels[]')
+      echo "Current labels for $host: $labels"
+  done
+}
+
+# Function to label all OSD hosts with '_no_schedule'
+label_osd_hosts_no_schedule() {
+    echo "Applying '_no_schedule' label to all OSD hosts..."
+    # Assuming OSD_HOST could be a single host or an array of hosts
+    # Convert OSD_HOST to an array if it's not already one
+    if [[ ! "${OSD_HOST[@]}" ]]; then
+        osd_hosts=($OSD_HOST) # Convert single host to an array
+    else
+        osd_hosts=("${OSD_HOST[@]}") # Use the array as is
+    fi
+
+    for osd_host in "${osd_hosts[@]}"; do
+        sudo ceph orch host label add $osd_host _no_schedule && \
+        echo "Label '_no_schedule' added to $osd_host."
+    done
 }
