@@ -39,7 +39,8 @@ pip install -U -r requirements.txt
 ### Step 2: Copy All files
 Copy the necessary files into the cephadm-ansible directory.
 ```bash
-cp * cephadm-ansible
+git clone https://github.com/somaz94/install-cephadm-ansible.git
+cp install-cephadm-ansible/* cephadm-ansible/
 cd cephadm-ansbile
 ```
 
