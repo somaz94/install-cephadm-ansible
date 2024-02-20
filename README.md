@@ -17,12 +17,12 @@ Access to a terminal with SSH capabilities.
 ### Step 1: Install Python & Clone cephadm-ansible
 Clone the `cephadm-ansible` repository to your local machine and set up a virtual environment for Python.
 ```bash
-# Install Python(Debian/Ubuntu)
+# For Debian/Ubuntu (Check if Python 3.10 is available in default repos first)
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get -y update
 sudo apt install -y python3.10 python3-pip git python3.10-venv
 
-# Install Python(RedHat/CentOS)
+# For RedHat/CentOS 8
 sudo dnf module enable python310 -y
 sudo dnf install -y python310 git python3-pip python3.10-venv
 
