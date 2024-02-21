@@ -26,3 +26,17 @@ ceph_config:
   global:
     osd_crush_chooseleaf_type: 0
     osd_pool_default_size: 1
+
+repos_4_to_disable:
+  - rhceph-4-tools-for-rhel-{{ ansible_facts['distribution_major_version'] }}-{{ ansible_facts['architecture'] }}-rpms
+  - rhceph-4-mon-for-rhel-{{ ansible_facts['distribution_major_version'] }}-{{ ansible_facts['architecture'] }}-rpms
+  - rhceph-4-osd-for-rhel-{{ ansible_facts['distribution_major_version'] }}-{{ ansible_facts['architecture'] }}-rpms
+repos_5_to_disable:
+  - rhceph-5-tools-for-rhel-{{ ansible_facts['distribution_major_version'] }}-{{ ansible_facts['architecture'] }}-rpms
+packages_to_uninstall:
+  - ceph-mds
+  - ceph-mgr
+  - ceph-mon
+  - ceph-osd
+  - ceph-radosgw
+  - rbd-mirror

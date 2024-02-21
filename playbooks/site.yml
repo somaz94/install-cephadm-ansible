@@ -1,5 +1,6 @@
 - hosts: all
   become: true
+  gather_facts: true
   roles:
     - ceph-common
     - ceph-deploy

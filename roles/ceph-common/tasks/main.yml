@@ -11,12 +11,12 @@
 
 - name: Copy SSH key to each host
   ansible.builtin.command:
-    cmd: "ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ item }}"
+    cmd: "ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ item }}"
   loop: "{{ host_group }}"
 
 - name: Wipe OSD devices on host
   ansible.builtin.command:
-    cmd: "ssh {{ osd_host }} 'sudo wipefs --all /dev/{{ item }}'"
+    cmd: "ssh -i {{ ssh_key }} {{ ssh_user }}@{{ osd_host }} 'sudo wipefs --all /dev/{{ item }}'"
   loop: "{{ osd_devices }}"
 
 - name: Run preflight setup for Ceph
