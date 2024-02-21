@@ -39,5 +39,3 @@
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
-  run_once: true
-  loop: "{{ host_group }}"
