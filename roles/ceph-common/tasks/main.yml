@@ -11,7 +11,7 @@
 
 - name: Copy SSH key to each host
   ansible.builtin.command:
-    cmd: "ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ item }}"
+    cmd: "ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no -f {{ ssh_user }}@{{ item }}"
   loop: "{{ host_group }}"
 
 - name: Wipe OSD devices on host
