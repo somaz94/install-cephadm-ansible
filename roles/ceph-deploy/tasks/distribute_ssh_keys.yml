@@ -61,8 +61,16 @@
     user: "{{ cephadm_ssh_user | default('root') }}"
     key: "{{ lookup('file', cephadm_pubkey_path) if cephadm_pubkey_path is defined else cephadm_get_pub_key.stdout }}"
 
-- name: set cephadm ssh user to {{ cephadm_ssh_user }}
-  command: "cephadm shell {{ '--fsid ' + fsid if fsid is defined else '' }} ceph cephadm set-user {{ cephadm_ssh_user | default('root') }}"
+- name: Fetch FSID of the Ceph cluster
+  command: sudo ceph fsid
+  register: ceph_fsid
+  delegate_to: "{{ admin_node }}"
+  changed_when: false
+  run_once: true
+
+- name: Set cephadm SSH user to {{ cephadm_ssh_user }}
+  command: >
+    cephadm shell --fsid {{ ceph_fsid.stdout }} ceph cephadm set-user {{ cephadm_ssh_user | default('root') }}
   changed_when: false
   run_once: true
   delegate_to: "{{ admin_node }}"
