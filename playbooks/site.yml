@@ -2,5 +2,7 @@
   become: true
   gather_facts: true
   roles:
-    - ceph-common
-    - ceph-deploy
+    - role: ceph-common
+      when: run_ceph_common | default(true) | bool
+    - role: ceph-deploy
+      when: run_ceph_deploy | default(true) | bool
