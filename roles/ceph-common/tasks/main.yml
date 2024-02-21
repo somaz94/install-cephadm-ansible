@@ -9,10 +9,25 @@
     cmd: "ssh-keygen -f {{ ssh_key }} -N ''"
   when: not ssh_key_stat.stat.exists
 
-- name: Copy SSH key to each host
-  ansible.builtin.command:
-    cmd: "ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no -f {{ ssh_user }}@{{ item }}"
+- name: Copy SSH key to each host if not already installed
+  ansible.builtin.shell: |
+    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ host_item }} || \
+    echo "{{ host_item }}: Key already exists or another error occurred."
   loop: "{{ host_group }}"
+  loop_control:
+    loop_var: host_item
+  register: ssh_copy_result
+  ignore_errors: true
+
+- name: Check for 'Key already exists' message
+  ansible.builtin.fail:
+    msg: "Failed to copy SSH key to {{ item.item }} due to an unexpected error."
+  when: 
+    - "'Key already exists or another error occurred.' not in item.stdout"
+    - item.rc != 0
+  loop: "{{ ssh_copy_result.results }}"
+  loop_control:
+    loop_var: item
 
 - name: Wipe OSD devices on host
   ansible.builtin.command:
@@ -21,3 +36,6 @@
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
+  run_once: true
+  delegate_to: "{{ item }}"
+  loop: "{{ host_group }}"
