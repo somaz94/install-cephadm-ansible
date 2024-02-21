@@ -22,7 +22,7 @@
 - name: Run preflight setup for Ceph
   block:
     - name: Variables validations
-      ansible.builtin.import_playbook: validate/preflight.yml
+      ansible.builtin.import_playbook: ../../validate/preflight.yml
 
     - hosts: all
       become: true
