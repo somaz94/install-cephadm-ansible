@@ -11,26 +11,6 @@ else
     CLEANUP_CEPH="false"
 fi
 
-# Start setup
-echo "Starting Ceph cluster setup..."
-
-# Check for existing SSH key and generate if it does not exist
-if [ ! -f "$SSH_KEY" ]; then
-    echo "Generating SSH key..."
-    ssh-keygen -f "$SSH_KEY" -N '' # No passphrase
-    echo "SSH key generated successfully."
-else
-    echo "SSH key already exists. Skipping generation."
-fi
-
-# Copy SSH key to each host in the group
-for host in "${HOST_GROUP[@]}"; do
-    echo "Copying SSH key to $host..."
-    ssh-copy-id -i "${SSH_KEY}.pub" "$host" && \
-    echo "SSH key copied successfully to $host." || \
-    echo "Failed to copy SSH key to $host."
-done
-
 # Cleanup existing Ceph setup if confirmed
 cleanup_ceph_cluster
 

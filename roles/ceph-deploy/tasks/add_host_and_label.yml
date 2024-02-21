@@ -1,0 +1,24 @@
+---
+- name: Add and label hosts in the Ceph cluster
+  block:
+    - name: Add public key of Ceph cluster to each host
+      ansible.builtin.shell: |
+        ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}
+      loop: "{{ host_group }}"
+      delegate_to: localhost
+
+    - name: Add host to Ceph cluster and apply labels
+      ansible.builtin.shell: |
+        sudo ceph orch host add {{ item.hostname }} {{ item.ip }}
+        sudo ceph orch host label add {{ item.hostname }} {{ item.label }}
+      loop:
+        - { hostname: "{{ admin_host }}", ip: "{{ host_ips[0] }}", label: "mon,mgr" }
+        - { hostname: "{{ osd_host }}", ip: "{{ host_ips[2] }}", label: "osd" }
+      delegate_to: "{{ admin_host }}"
+
+    - name: Apply '_no_schedule' label to specific hosts
+      ansible.builtin.shell: |
+        sudo ceph orch host label add {{ item }} _no_schedule
+      loop: "{{ host_group }}"
+      when: item != admin_host and item != osd_host
+      delegate_to: "{{ admin_host }}"

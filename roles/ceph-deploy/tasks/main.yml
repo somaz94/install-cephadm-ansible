@@ -1,0 +1,60 @@
+---
+- name: Setup initial Ceph configuration
+  block:
+    - name: Create a temporary Ceph configuration file
+      copy:
+        dest: "/tmp/ceph_temp_config.conf"
+        content: |
+          [global]
+          osd crush chooseleaf type = {{ ceph_config.global.osd_crush_chooseleaf_type }}
+          osd_pool_default_size = {{ ceph_config.global.osd_pool_default_size }}
+      register: temp_config_file
+      delegate_to: localhost
+
+    - name: Bootstrap the Ceph cluster
+      command: >
+        sudo cephadm bootstrap --mon-ip {{ host_ips[0] }} --cluster-network {{ cluster_network }}
+        --ssh-user {{ ssh_user }} -c {{ temp_config_file.path }} --allow-overwrite --log-to-file
+      delegate_to: "{{ admin_host }}"
+      vars:
+        mon_ip: "{{ host_ips[0] }}"
+
+    - name: Distribute Cephadm SSH keys to all hosts
+      include_tasks: distribute_ssh_keys.yml
+      vars:
+        cephadm_ssh_user: "{{ ssh_user }}"
+        admin_node: "{{ admin_host }}"
+        cephadm_pubkey_path: "{{ ssh_key }}.pub"
+
+    - name: Fetch FSID of the Ceph cluster
+      command: "sudo ceph fsid"
+      register: ceph_fsid
+      delegate_to: "{{ admin_host }}"
+
+    - name: Add and label hosts in the Ceph cluster
+      include_tasks: add_host_and_label.yml
+
+    - name: Prepare and add OSDs
+      pause:
+        seconds: 60
+
+    - include_tasks: add_osds_and_wait.yml
+
+    - name: Label all OSD hosts with '_no_schedule'
+      pause:
+        seconds: 60
+
+    - include_tasks: label_osd_hosts_no_schedule.yml
+
+    - name: Check Ceph cluster status and OSD creation
+      command: |
+        sudo ceph -s
+        sudo ceph osd tree
+      delegate_to: "{{ admin_host }}"
+
+    - name: Cleanup
+      file:
+        path: "{{ temp_config_file.path }}"
+        state: absent
+      delegate_to: localhost
+      when: temp_config_file is defined

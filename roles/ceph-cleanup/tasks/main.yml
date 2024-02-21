@@ -1,0 +1,71 @@
+---
+# Stop all non-essential Ceph services
+- name: Stop all Ceph services except 'mgr', 'mon', and 'osd'
+  ansible.builtin.command:
+    cmd: sudo ceph orch ls --format=json | jq -r '.[].service_name' | while read service; do if [[ "$service" != "mgr" && "$service" != "mon" && "$service" != "osd" ]]; then echo "Stopping $service..."; sudo ceph orch stop $service; else echo "Skipping $service (cannot be stopped directly)."; fi; done
+  changed_when: false
+
+# Remove OSDs and clean up LVM
+- name: Remove OSDs and cleanup LVM
+  block:
+    - name: Removing OSDs and cleaning up LVM volumes
+      ansible.builtin.command:
+        cmd: |
+          osd_ids=$(sudo ceph osd ls)
+          for osd_id in $osd_ids; do
+            echo "Removing OSD.$osd_id..."
+            sudo ceph orch daemon stop osd.$osd_id
+            sleep 10
+            sudo ceph osd out $osd_id
+            sleep 10
+            sudo ceph osd rm $osd_id
+            sleep 10
+          done
+          ssh {{ osd_host }} '
+            sudo lvscan | awk "/ceph/ {print \$2}" | xargs -I{} sudo lvremove -y {}
+            sleep 5
+            sudo vgscan | awk "/ceph/ {print \$4}" | xargs -I{} sudo vgremove -y {}
+            sleep 5
+            sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | xargs -I{} sudo pvremove -y {}
+          '
+      changed_when: false
+
+# Cleanup existing Ceph cluster
+- name: Cleanup existing Ceph cluster
+  when: cleanup_ceph == "true"
+  block:
+    - name: Proceed with cluster cleanup
+      ansible.builtin.command:
+        cmd: |
+          if sudo test -d /var/lib/ceph; then
+            echo "Cleaning up existing Ceph cluster..."
+            sudo cephadm rm-cluster --fsid=$(sudo ceph fsid) --force
+            echo "Ceph cluster removed successfully."
+          else
+            echo "No existing Ceph cluster found to clean up."
+          fi
+      changed_when: false
+
+    - name: Removing any leftover Ceph containers
+      ansible.builtin.command:
+        cmd: |
+          for host in "{{ host_group }}"; do
+            echo "Cleaning up containers on $host..."
+            ssh "$ssh_user@$host" '
+            if command -v docker &> /dev/null; then
+              container_runtime="docker"
+            elif command -v podman &> /dev/null; then
+              container_runtime="podman"
+            else
+              echo "No container runtime (Docker or Podman) found on '"$host"'. Skipping container cleanup."
+              exit 1
+            fi
+            sudo $container_runtime ps -a | grep ceph | awk "{print \$1}" | xargs -I {} sudo $container_runtime rm -f {}
+            '
+            if [ $? -ne 0 ]; then
+              echo "Error cleaning up containers on $host"
+            else
+              echo "Leftover Ceph containers removed successfully on $host."
+            fi
+          done
+      changed_when: false
