@@ -4,7 +4,8 @@ cluster_network: "10.77.101.0/24"
 ssh_user: "somaz"
 
 # Host configuration
-admin_host: "test-server"
+admin_host:
+  - "test-server"
 osd_host: "test-server-storage"
 host_group:
   - test-server
