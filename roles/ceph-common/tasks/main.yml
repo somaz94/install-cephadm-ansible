@@ -31,11 +31,13 @@
 
 - name: Wipe OSD devices on host
   ansible.builtin.command:
-    cmd: "ssh -i {{ ssh_key }} {{ ssh_user }}@{{ osd_host }} 'sudo wipefs --all /dev/{{ item }}'"
+    cmd: "sudo wipefs --all /dev/{{ item }}"
+  become: yes
+  become_method: sudo
   loop: "{{ osd_devices }}"
+  delegate_to: "{{ osd_host }}"
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
   run_once: true
-  delegate_to: "{{ item }}"
   loop: "{{ host_group }}"
