@@ -1,6 +1,6 @@
 ---
 - name: Label all OSD hosts with '_no_schedule'
-  ansible.builtin.shell: |
+  ansible.builtin.command: |
     ceph orch host label add {{ item }} _no_schedule
   loop: "{{ groups['osds'] }}"
   loop_control:
