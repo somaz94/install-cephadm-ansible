@@ -11,11 +11,11 @@
 
 - name: Copy SSH key to each host if not already installed
   ansible.builtin.shell: |
-    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ host_item }} || \
-    echo "{{ host_item }}: Key already exists or another error occurred."
-  loop: "{{ host_group }}"
+    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] || \
+    echo "{{ item }}: Key already exists or another error occurred."
+  loop: "{{ groups['clients'] }}"
   loop_control:
-    loop_var: host_item
+    loop_var: item
   register: ssh_copy_result
   ignore_errors: true
 
@@ -35,7 +35,7 @@
   become: yes
   become_method: sudo
   loop: "{{ osd_devices }}"
-  delegate_to: "{{ osd_host }}"
+  delegate_to: "{{ groups['osds'] }}"
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
