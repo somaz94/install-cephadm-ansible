@@ -46,4 +46,4 @@
   loop: "{{ groups['clients'] }}"
   loop_control:
     loop_var: item
-  become_user: {{ cephadm_ssh_user }}
+  become_user: "{{ cephadm_ssh_user }}"
