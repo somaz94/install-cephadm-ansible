@@ -29,7 +29,7 @@
   changed_when: false
   run_once: true
   register: cephadm_get_pub_key
-  delegate_to: "{{ admin_host[0] }}"
+  delegate_to: "{{ groups['admin'][0] }}"
   when: cephadm_pubkey_path is undefined
 
 - name: allow ssh public key for {{ cephadm_ssh_user | default('root') }} account
@@ -40,7 +40,7 @@
 - name: Fetch FSID of the Ceph cluster
   command: sudo ceph fsid
   register: ceph_fsid
-  delegate_to: "{{ admin_host[0] }}"
+  delegate_to: "{{ groups['admin'][0] }}"
   changed_when: false
   run_once: true
 
@@ -49,4 +49,4 @@
     cephadm shell --fsid {{ ceph_fsid.stdout }} ceph cephadm set-user {{ cephadm_ssh_user | default('root') }}
   changed_when: false
   run_once: true
-  delegate_to: "{{ admin_host[0] }}"
+  delegate_to: "{{ groups['admin'][0] }}"

@@ -1,9 +1,9 @@
 ---
-- name: Prepare and add OSDs
-  block:
-    - name: Add OSD on each device and wait for readiness
-      ansible.builtin.shell: |
-        sudo /usr/bin/ceph orch daemon add osd {{ osd_host }}:/dev/{{ item }}
-        # Wait and check readiness logic here
-      loop: "{{ osd_devices }}"
-      delegate_to: "{{ admin_host }}"
+- name: Prepare and add OSDs on each device on OSD host
+  ansible.builtin.command: |
+    sudo ceph orch daemon add osd {{ hostvars[item]['ansible_host'] }}:/dev/{{ device }}
+  loop: "{{ osd_devices }}"
+  delegate_to: "{{ groups['admin'][0] }}"
+  loop_control:
+    loop_var: device
+  when: inventory_hostname in groups['osds']

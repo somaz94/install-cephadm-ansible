@@ -11,7 +11,7 @@
 
 - name: Copy SSH key to each host if not already installed
   ansible.builtin.shell: |
-    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] || \
+    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] }}|| \
     echo "{{ item }}: Key already exists or another error occurred."
   loop: "{{ groups['clients'] }}"
   loop_control:
@@ -32,10 +32,9 @@
 - name: Wipe OSD devices on host
   ansible.builtin.command:
     cmd: "sudo wipefs --all /dev/{{ item }}"
-  become: yes
-  become_method: sudo
+  become: true
   loop: "{{ osd_devices }}"
-  delegate_to: "{{ groups['osds'] }}"
+  when: inventory_hostname in groups['osds']
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml

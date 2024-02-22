@@ -3,23 +3,28 @@
   block:
     - name: Add public key of Ceph cluster to each host
       ansible.builtin.shell: |
-        ssh { ssh_user }}@{{ admin_host[0] }} "ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}"
-      loop: "{{ host_group }}"
-      delegate_to: "{{ admin_host[0] }}"
-      when: inventory_hostname == admin_host[0]
+        ssh { ssh_user }}@{{ groups['admin'][0] }} "ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}"
+      loop: "{{ groups['clients'] }}"
+      loop_control:
+        loop_var: item
+      delegate_to: "{{ groups['admin'][0] }}"
+      when: inventory_hostname == groups['admin'][0]
 
     - name: Add host to Ceph cluster and apply labels
       ansible.builtin.shell: |
-        sudo ceph orch host add {{ item.hostname }} {{ item.ip }}
+        sudo ceph orch host add {{ item.hostname }} {{ hostvars[item.hostname]['ansible_host'] }}
         sudo ceph orch host label add {{ item.hostname }} {{ item.label }}
       loop:
-        - { hostname: "{{ admin_host }}", ip: "{{ host_ips[0] }}", label: "mon,mgr" }
-        - { hostname: "{{ osd_host }}", ip: "{{ host_ips[2] }}", label: "osd" }
-      delegate_to: "{{ admin_host }}"
+        - { hostname: "{{ groups['admin'][0] }}", label: "mon,mgr" }
+        - { hostname: "{{ groups['osds'][0] }}", label: "osd" }
+      delegate_to: "{{ groups['admin'][0] }}"
+      when: inventory_hostname == groups['admin'][0]
 
     - name: Apply '_no_schedule' label to specific hosts
       ansible.builtin.shell: |
         sudo ceph orch host label add {{ item }} _no_schedule
-      loop: "{{ host_group }}"
-      when: item != admin_host and item != osd_host
-      delegate_to: "{{ admin_host }}"
+      loop: "{{ groups['clients'] }}"
+      when: item != groups['admin'][0] and item != groups['osds'][0]
+      delegate_to: "{{ groups['admin'][0] }}"
+      loop_control:
+        loop_var: item

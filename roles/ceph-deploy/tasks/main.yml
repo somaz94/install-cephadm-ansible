@@ -13,12 +13,10 @@
 
     - name: Bootstrap the Ceph cluster
       command: >
-        sudo cephadm bootstrap --mon-ip {{ host_ips[0] }} --cluster-network {{ cluster_network }}
+        sudo cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} --cluster-network {{ cluster_network }}
         --ssh-user {{ ssh_user }} -c {{ temp_config_file.path }} --allow-overwrite --log-to-file
-      delegate_to: "{{ admin_host[0] }}"
-      when: inventory_hostname == admin_host[0]
-      vars:
-        mon_ip: "{{ host_ips[0] }}"
+      delegate_to: "{{ groups['admin'][0] }}"
+      when: inventory_hostname == groups['admin'][0]
 
     - name: Distribute Cephadm SSH keys to all hosts
       include_tasks: distribute_ssh_keys.yml

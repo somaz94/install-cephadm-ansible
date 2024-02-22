@@ -1,5 +1,5 @@
 # General cluster settings
-mon_ip: "10.77.101.47"
+# mon_ip: "10.77.101.47"
 cluster_network: "10.77.101.0/24"
 ssh_user: "somaz"
 
