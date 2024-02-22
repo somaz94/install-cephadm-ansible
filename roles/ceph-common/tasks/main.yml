@@ -18,6 +18,8 @@
     loop_var: item
   register: ssh_copy_result
   ignore_errors: true
+  delegate_to: localhost
+  run_once: true
 
 - name: Check for 'Key already exists' message
   ansible.builtin.fail:
@@ -28,6 +30,8 @@
   loop: "{{ ssh_copy_result.results }}"
   loop_control:
     loop_var: item
+  delegate_to: localhost
+  run_once: true
 
 - name: Wipe OSD devices on host
   ansible.builtin.command:

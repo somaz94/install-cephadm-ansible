@@ -1,27 +1,24 @@
 ---
-- name: Configure SSH keys and labels for Ceph cluster
-  hosts: all
-  tasks:
-    - name: Copy SSH public key to each client host
-      ansible.builtin.command: |
-        ssh-copy-id -f -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ inventory_hostname }}
-      when: inventory_hostname in groups['clients']
+- name: Copy SSH public key to each client host
+  ansible.builtin.command: |
+    ssh-copy-id -f -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ inventory_hostname }}
+  when: inventory_hostname in groups['client']
 
-    - name: Add admin host to Ceph cluster and apply mon,mgr labels
-      ansible.builtin.shell: |
-        sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
-        sudo ceph orch host label add {{ inventory_hostname }} mon,mgr
-      when: inventory_hostname in groups['admin']
+- name: Add admin host to Ceph cluster and apply mon,mgr labels
+  ansible.builtin.shell: |
+    sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
+    sudo ceph orch host label add {{ inventory_hostname }} mon,mgr
+  when: inventory_hostname in groups['admin']
 
-    - name: Add OSD host to Ceph cluster and apply osd label
-      ansible.builtin.shell: |
-        sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
-        sudo ceph orch host label add {{ inventory_hostname }} osd
-      when: inventory_hostname in groups['osds']
+- name: Add OSD host to Ceph cluster and apply osd label
+  ansible.builtin.shell: |
+    sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
+    sudo ceph orch host label add {{ inventory_hostname }} osd
+  when: inventory_hostname in groups['osds']
 
-    - name: Label specific hosts with '_no_schedule'
-      ansible.builtin.shell: |
-        sudo ceph orch host label add {{ inventory_hostname }} _no_schedule
-      when: 
-        - inventory_hostname not in groups['admin']
-        - inventory_hostname not in groups['osds']
+- name: Label specific hosts with '_no_schedule'
+  ansible.builtin.shell: |
+    sudo ceph orch host label add {{ inventory_hostname }} _no_schedule
+  when: 
+    - inventory_hostname in groups['admin']
+    - inventory_hostname in groups['osds']
