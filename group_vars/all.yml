@@ -3,7 +3,7 @@ cluster_network: "10.77.101.0/24"
 ssh_user: "somaz"
 
 # SSH and playbook settings
-ssh_key: "/home/somaz/.ssh/id_rsa_ansible"
+ssh_key: "/home/somaz/.ssh/id_rsa"
 
 # OSD configuration
 osd_devices: ["sdb", "sdc", "sdd"]
