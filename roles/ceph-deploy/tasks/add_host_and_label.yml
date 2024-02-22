@@ -1,13 +1,4 @@
 ---
-- name: Copy SSH public key to each client host
-  ansible.builtin.shell: |
-    su - {{ ssh_user }}
-    ssh-copy-id -f -i /etc/ceph/ceph.pub {{ ssh_user }}@{{ item }} && \
-    (echo "SSH key copied successfully to {{ item }}." || echo "Failed to copy SSH key to {{ item }}.")
-  loop: "{{ groups['clients'] }}"
-  loop_control:
-    loop_var: item
-
 - name: Add admin host to Ceph cluster and apply mon,mgr labels
   ansible.builtin.shell: |
     ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
