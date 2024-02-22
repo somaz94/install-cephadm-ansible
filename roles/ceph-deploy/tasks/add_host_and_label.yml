@@ -3,7 +3,7 @@
   block:
     - name: Add public key of Ceph cluster to each host
       ansible.builtin.shell: |
-        ssh { ssh_user }}@{{ groups['admin'][0] }} "ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}"
+        ssh {{ ssh_user }}@{{ item }} "ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}"
       loop: "{{ groups['clients'] }}"
       loop_control:
         loop_var: item
@@ -24,7 +24,9 @@
       ansible.builtin.shell: |
         sudo ceph orch host label add {{ item }} _no_schedule
       loop: "{{ groups['clients'] }}"
-      when: item != groups['admin'][0] and item != groups['osds'][0]
+      when: 
+        - "'{{ item }}' not in groups['admin']"
+        - "'{{ item }}' not in groups['osds']"
       delegate_to: "{{ groups['admin'][0] }}"
       loop_control:
         loop_var: item

@@ -1,9 +1,9 @@
-- name: fail if admin_host is not defined
+- name: fail if admin is not defined
   fail:
-    msg: "You must set the variable admin_host"
+    msg: "You must set the variable admin"
   run_once: true
   delegate_to: localhost
-  when: admin_host is undefined
+  when: groups['admin'] is undefined or groups['admin'] | length == 0
 
 - name: get ssh public key from a file on the Ansible controller host
   when: cephadm_pubkey_path is defined
