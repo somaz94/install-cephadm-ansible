@@ -1,6 +1,5 @@
 ---
 - name: Prepare and add OSDs on each device on OSD host
-  hosts: osds 
   tasks:
   - name: Add OSDs for each device
     ansible.builtin.command: |
@@ -8,3 +7,4 @@
     loop: "{{ osd_devices }}"
     loop_control:
       loop_var: device
+    when: inventory_hostname in groups['osds']
