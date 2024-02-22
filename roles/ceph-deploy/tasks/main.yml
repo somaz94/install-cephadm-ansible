@@ -48,6 +48,7 @@
 
     - name: Add OSDs and Ensure They Are Ready
       include_tasks: add_osds_and_wait.yml
+      when: inventory_hostname in groups['osds']
 
     - name: Label all OSD hosts with '_no_schedule'
       pause:

@@ -5,4 +5,3 @@
   loop: "{{ osd_devices }}"
   loop_control:
     loop_var: device
-  when: inventory_hostname in groups['osds']
