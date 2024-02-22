@@ -8,13 +8,22 @@
       loop_control:
         loop_var: item
 
-    - name: Add host to Ceph cluster and apply labels
-      ansible.builtin.shell: |
-        sudo ceph orch host add {{ item.hostname }} {{ hostvars[item.hostname]['ansible_host'] }}
-        sudo ceph orch host label add {{ item.hostname }} {{ item.label }}
-      loop:
-        - { hostname: "{{ groups['admin'][0] }}", label: "mon,mgr" }
-        - { hostname: "{{ groups['osds'][0] }}", label: "osd" }
+    - name: Add all hosts to Ceph cluster and apply labels
+      hosts: all
+      tasks:
+        - name: Add admin hosts to Ceph cluster and apply mon,mgr labels
+          ansible.builtin.shell: |
+            sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }}
+            sudo ceph orch host label add {{ item }} mon,mgr
+          loop: "{{ groups['admin'] }}"
+          when: inventory_hostname in groups['admin']
+
+        - name: Add OSD hosts to Ceph cluster and apply osd label
+          ansible.builtin.shell: |
+            sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }}
+            sudo ceph orch host label add {{ item }} osd
+          loop: "{{ groups['osds'] }}"
+          when: inventory_hostname in groups['osds']
 
     - name: Apply '_no_schedule' label to specific hosts
       ansible.builtin.shell: |
