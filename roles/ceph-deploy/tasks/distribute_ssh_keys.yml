@@ -41,7 +41,7 @@
 
 - name: Copy SSH public key to each client host
   ansible.builtin.shell: |
-    ssh-copy-id -f -i {{ cephadm_pubkey_path }} {{ cephadm_ssh_user }}@{{ item }} && \
+    ssh-copy-id -o StrictHostKeyChecking=no -f -i {{ cephadm_pubkey_path }} {{ cephadm_ssh_user }}@{{ item }} && \
     (echo "SSH key copied successfully to {{ item }}." || echo "Failed to copy SSH key to {{ item }}.")
   loop: "{{ groups['clients'] }}"
   loop_control:
