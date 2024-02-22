@@ -8,6 +8,8 @@
   ansible.builtin.command:
     cmd: "ssh-keygen -f {{ ssh_key }} -N ''"
   when: not ssh_key_stat.stat.exists
+  delegate_to: localhost
+  run_once: true
 
 - name: Copy SSH key to each host if not already installed
   ansible.builtin.shell: |
