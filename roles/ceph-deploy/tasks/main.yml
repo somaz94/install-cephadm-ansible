@@ -13,12 +13,6 @@
         groups: docker
         append: yes
 
-    - name: Add SSH user to the ceph group
-      ansible.builtin.user:
-        name: "{{ ssh_user }}"
-        groups: ceph
-        append: yes
-
     - name: Create a temporary Ceph configuration file
       copy:
         dest: "/tmp/ceph_temp_config.conf"
@@ -30,7 +24,7 @@
 
     - name: Bootstrap the Ceph cluster
       ansible.builtin.command: |
-        sudo cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} --cluster-network {{ cluster_network }}
+        cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} --cluster-network {{ cluster_network }}
         --ssh-user {{ ssh_user }} -c {{ temp_config_file.path }} --allow-overwrite --log-to-file
 
     - name: Distribute Cephadm SSH keys to all hosts
