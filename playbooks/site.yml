@@ -4,6 +4,8 @@
   roles:
     - role: ceph-common
       when: run_ceph_common | default(true) | bool
+      delegate_to: localhost
+      run_once: true
     - role: ceph-deploy
       when: run_ceph_deploy | default(true) | bool
       delegate_to: localhost
