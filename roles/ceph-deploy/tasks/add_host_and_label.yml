@@ -1,36 +1,32 @@
 ---
-- name: Add and label hosts in the Ceph cluster
-  block:
-    - name: Ensure admin node's SSH public key is authorized on each host
+- name: Ensure admin node's SSH public key is authorized on each host
+  hosts: clients
+  tasks:
+    - name: Copy SSH public key to each client host
       ansible.builtin.command: |
         ssh-copy-id -f -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ inventory_hostname }}
-      loop: "{{ groups['clients'] }}"
-      loop_control:
-        loop_var: item
 
-    - name: Add all hosts to Ceph cluster and apply labels
-      hosts: all
-      tasks:
-        - name: Add admin hosts to Ceph cluster and apply mon,mgr labels
-          ansible.builtin.shell: |
-            sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }}
-            sudo ceph orch host label add {{ item }} mon,mgr
-          loop: "{{ groups['admin'] }}"
-          when: inventory_hostname in groups['admin']
-
-        - name: Add OSD hosts to Ceph cluster and apply osd label
-          ansible.builtin.shell: |
-            sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }}
-            sudo ceph orch host label add {{ item }} osd
-          loop: "{{ groups['osds'] }}"
-          when: inventory_hostname in groups['osds']
-
-    - name: Apply '_no_schedule' label to specific hosts
+- name: Add admin hosts to Ceph cluster and apply mon,mgr labels
+  hosts: admin
+  tasks:
+    - name: Add host to Ceph cluster and apply labels
       ansible.builtin.shell: |
-        sudo ceph orch host label add {{ item }} _no_schedule
-      loop: "{{ groups['all'] }}"
+        sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
+        sudo ceph orch host label add {{ inventory_hostname }} mon,mgr
+
+- name: Add OSD hosts to Ceph cluster and apply osd label
+  hosts: osds
+  tasks:
+    - name: Add host to Ceph cluster and apply labels
+      ansible.builtin.shell: |
+        sudo ceph orch host add {{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_host'] }}
+        sudo ceph orch host label add {{ inventory_hostname }} osd
+
+- name: Apply '_no_schedule' label to specific hosts
+  tasks:
+    - name: Label hosts with '_no_schedule'
+      ansible.builtin.shell: |
+        sudo ceph orch host label add {{ inventory_hostname }} _no_schedule
       when: 
-        - item not in groups['admin']
-        - item not in groups['osds']
-      loop_control:
-        loop_var: item
+        - inventory_hostname not in groups['admin']
+        - inventory_hostname not in groups['osds']
