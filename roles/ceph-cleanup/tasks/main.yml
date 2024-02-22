@@ -49,7 +49,7 @@
     - name: Removing any leftover Ceph containers
       ansible.builtin.command:
         cmd: |
-          for host in "{{ host_group }}"; do
+          for host in "{{ inventory_hostname }}"; do
             echo "Cleaning up containers on $host..."
             ssh "$ssh_user@$host" '
             if command -v docker &> /dev/null; then

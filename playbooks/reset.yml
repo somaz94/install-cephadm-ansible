@@ -1,4 +1,7 @@
 - hosts: all
   become: true
+  gather_facts: true
   roles:
     - ceph-cleanup
+      delegate_to: localhost
+      run_once: true

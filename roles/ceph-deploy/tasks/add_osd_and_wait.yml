@@ -1,8 +1,10 @@
 ---
 - name: Prepare and add OSDs on each device on OSD host
-  ansible.builtin.command: |
-    sudo ceph orch daemon add osd {{ hostvars[item]['ansible_host'] }}:/dev/{{ device }}
-  loop: "{{ osd_devices }}"
-  delegate_to: localhost
-  loop_control:
-    loop_var: device
+  hosts: osds 
+  tasks:
+  - name: Add OSDs for each device
+    ansible.builtin.command: |
+      sudo ceph orch daemon add osd {{ inventory_hostname }}:/dev/{{ device }}
+    loop: "{{ osd_devices }}"
+    loop_control:
+      loop_var: device

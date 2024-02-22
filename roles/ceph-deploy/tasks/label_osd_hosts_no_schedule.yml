@@ -1,5 +1,6 @@
 ---
 - name: Label all OSD hosts with '_no_schedule'
+  hosts: osds
   ansible.builtin.shell: |
-    sudo ceph orch host label add {{ hostvars[osd_host]['ansible_host'] }} _no_schedule
+    sudo ceph orch host label add {{ inventory_hostname }} _no_schedule
   when: "'osds' in group_names"
