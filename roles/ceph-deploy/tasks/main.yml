@@ -37,7 +37,7 @@
       include_tasks: distribute_ssh_keys.yml
       vars:
         cephadm_ssh_user: "{{ ssh_user }}"
-        cephadm_pubkey_path: "{{ ssh_key }}.pub"
+        cephadm_pubkey_path: "{{ ssh_key }}"
 
     - name: Add and label hosts in the Ceph cluster
       include_tasks: add_host_and_label.yml
