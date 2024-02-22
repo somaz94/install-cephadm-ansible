@@ -1,6 +1,7 @@
 ---
 - name: Copy SSH public key to each client host
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
+    su - somaz
     ssh-copy-id -f -i /etc/ceph/ceph.pub {{ ssh_user }}@{{ item }} && \
     (echo "SSH key copied successfully to {{ item }}." || echo "Failed to copy SSH key to {{ item }}.")
   loop: "{{ groups['clients'] }}"
@@ -8,7 +9,7 @@
     loop_var: item
 
 - name: Add admin host to Ceph cluster and apply mon,mgr labels
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
     ceph orch host label add {{ item }} mon,mgr || \
     echo "{{ item }}: Failed to add and label as mon,mgr."
@@ -17,7 +18,7 @@
     loop_var: item
 
 - name: Add OSD host to Ceph cluster and apply osd label
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
     ceph orch host label add {{ item }} osd || \
     echo "{{ item }}: Failed to add and label as osd."
@@ -26,7 +27,7 @@
     loop_var: item
 
 - name: Label specific hosts with '_no_schedule'
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     ceph orch host label add {{ item }} _no_schedule || \
     echo "{{ item }}: Failed to label as '_no_schedule'."
   loop: "{{ groups['clients'] }}"
