@@ -1,8 +1,6 @@
 - name: fail if admin is not defined
   fail:
     msg: "You must set the variable admin"
-  run_once: true
-  delegate_to: localhost
   when: groups['admin'] is undefined or groups['admin'] | length == 0
 
 - name: get ssh public key from a file on the Ansible controller host
@@ -12,14 +10,10 @@
       stat:
         path: "{{ cephadm_pubkey_path }}"
       register: cephadm_pubkey_path_stat
-      delegate_to: localhost
-      run_once: true
 
     - name: fail if {{ cephadm_pubkey_path }} doesn't exist
       fail:
         msg: "{{ cephadm_pubkey_path }} doesn't exist or is invalid."
-      run_once: true
-      delegate_to: localhost
       when:
         - not cephadm_pubkey_path_stat.stat.exists | bool
           or not cephadm_pubkey_path_stat.stat.isreg | bool
@@ -27,9 +21,7 @@
 - name: get the cephadm ssh pub key
   command: "cephadm shell {{ '--fsid ' + fsid if fsid is defined else '' }} ceph cephadm get-pub-key"
   changed_when: false
-  run_once: true
   register: cephadm_get_pub_key
-  delegate_to: "{{ groups['admin'][0] }}"
   when: cephadm_pubkey_path is undefined
 
 - name: allow ssh public key for {{ cephadm_ssh_user | default('root') }} account
@@ -40,13 +32,9 @@
 - name: Fetch FSID of the Ceph cluster
   command: sudo ceph fsid
   register: ceph_fsid
-  delegate_to: "{{ groups['admin'][0] }}"
   changed_when: false
-  run_once: true
 
 - name: Set cephadm SSH user to {{ cephadm_ssh_user }}
   command: >
     cephadm shell --fsid {{ ceph_fsid.stdout }} ceph cephadm set-user {{ cephadm_ssh_user | default('root') }}
   changed_when: false
-  run_once: true
-  delegate_to: "{{ groups['admin'][0] }}"

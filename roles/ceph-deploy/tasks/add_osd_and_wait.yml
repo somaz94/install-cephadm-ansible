@@ -3,7 +3,6 @@
   ansible.builtin.command: |
     sudo ceph orch daemon add osd {{ hostvars[item]['ansible_host'] }}:/dev/{{ device }}
   loop: "{{ osd_devices }}"
-  delegate_to: "{{ groups['admin'][0] }}"
+  delegate_to: localhost
   loop_control:
     loop_var: device
-  when: inventory_hostname in groups['osds']

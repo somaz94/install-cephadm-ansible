@@ -1,20 +1,6 @@
 # General cluster settings
-# mon_ip: "10.77.101.47"
 cluster_network: "10.77.101.0/24"
 ssh_user: "somaz"
-
-# Host configuration
-# admin_host:
-#   - "test-server"
-# osd_host: "test-server-storage"
-# host_group:
-#   - test-server
-#   - test-server-agent
-#   - test-server-storage
-# host_ips:
-#   - "10.77.101.39"
-#   - "10.77.101.41"
-#   - "10.77.101.55"
 
 # SSH and playbook settings
 ssh_key: "/home/somaz/.ssh/id_rsa_ansible"
