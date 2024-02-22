@@ -1,7 +1,7 @@
 ---
 - name: Copy SSH public key to each client host
   ansible.builtin.shell: |
-    su - somaz
+    su - {{ ssh_user }}
     ssh-copy-id -f -i /etc/ceph/ceph.pub {{ ssh_user }}@{{ item }} && \
     (echo "SSH key copied successfully to {{ item }}." || echo "Failed to copy SSH key to {{ item }}.")
   loop: "{{ groups['clients'] }}"
