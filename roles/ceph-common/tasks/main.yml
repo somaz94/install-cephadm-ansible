@@ -30,6 +30,8 @@
   loop: "{{ ssh_copy_result.results }}"
   loop_control:
     loop_var: item
+  delegate_to: localhost
+  run_once: true
 
 - name: Wipe OSD devices on host
   ansible.builtin.command:
