@@ -1,8 +1,8 @@
 ---
 - name: Copy SSH public key to each client host
-  ansible.builtin.command: |
+  ansible.builtin.shell: |
     ssh-copy-id -f -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ inventory_hostname }}
-  when: inventory_hostname in groups['client']
+  when: inventory_hostname in groups['clients']
 
 - name: Add admin host to Ceph cluster and apply mon,mgr labels
   ansible.builtin.shell: |
