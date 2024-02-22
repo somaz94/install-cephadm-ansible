@@ -2,7 +2,8 @@
 - name: Add and label hosts in the Ceph cluster
   block:
     - name: Ensure admin node's SSH public key is authorized on each host
-      ansible.builtin.command: "ssh-copy-id -i /etc/ceph/ceph.pub {{ ssh_user }}@{{ item }}"
+      ansible.builtin.command: |
+        ssh-copy-id -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] }}
       loop: "{{ groups['clients'] }}"
       loop_control:
         loop_var: item
