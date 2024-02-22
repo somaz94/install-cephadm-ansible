@@ -9,8 +9,8 @@
 
 - name: Add admin host to Ceph cluster and apply mon,mgr labels
   ansible.builtin.shell: |
-    sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
-    sudo ceph orch host label add {{ item }} mon,mgr || \
+    ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
+    ceph orch host label add {{ item }} mon,mgr || \
     echo "{{ item }}: Failed to add and label as mon,mgr."
   loop: "{{ groups['admin'] }}"
   loop_control:
@@ -18,8 +18,8 @@
 
 - name: Add OSD host to Ceph cluster and apply osd label
   ansible.builtin.shell: |
-    sudo ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
-    sudo ceph orch host label add {{ item }} osd || \
+    ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
+    ceph orch host label add {{ item }} osd || \
     echo "{{ item }}: Failed to add and label as osd."
   loop: "{{ groups['osds'] }}"
   loop_control:
@@ -27,7 +27,7 @@
 
 - name: Label specific hosts with '_no_schedule'
   ansible.builtin.shell: |
-    sudo ceph orch host label add {{ item }} _no_schedule || \
+    ceph orch host label add {{ item }} _no_schedule || \
     echo "{{ item }}: Failed to label as '_no_schedule'."
   loop: "{{ groups['clients'] }}"
   loop_control:

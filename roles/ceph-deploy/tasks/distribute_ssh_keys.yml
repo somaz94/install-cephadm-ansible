@@ -30,7 +30,7 @@
     key: "{{ lookup('file', cephadm_pubkey_path) if cephadm_pubkey_path is defined else cephadm_get_pub_key.stdout }}"
 
 - name: Fetch FSID of the Ceph cluster
-  command: sudo ceph fsid
+  command: ceph fsid
   register: ceph_fsid
   changed_when: false
 

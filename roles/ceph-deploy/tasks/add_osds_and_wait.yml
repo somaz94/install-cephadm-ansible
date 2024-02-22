@@ -1,8 +1,8 @@
 ---
 - name: Prepare and add OSDs on each device on OSD host
   ansible.builtin.shell: |
-    sudo ceph orch daemon add osd {{ inventory_hostname }}:/dev/{{ device }}
+    ceph orch daemon add osd {{ inventory_hostname }}:/dev/{{ device }}
   loop: "{{ osd_devices }}"
   loop_control:
     loop_var: device
-  when: "'osds' in group_names"
+  when: inventory_hostname in groups['osds']

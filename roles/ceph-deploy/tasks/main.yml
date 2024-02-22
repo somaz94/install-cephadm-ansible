@@ -1,6 +1,24 @@
 ---
 - name: Setup initial Ceph configuration
   block:
+    - name: Add SSH user to the sudo group
+      ansible.builtin.user:
+        name: "{{ ssh_user }}"
+        groups: sudo
+        append: yes
+
+    - name: Add SSH user to the docker group
+      ansible.builtin.user:
+        name: "{{ ssh_user }}"
+        groups: docker
+        append: yes
+
+    - name: Add SSH user to the ceph group
+      ansible.builtin.user:
+        name: "{{ ssh_user }}"
+        groups: ceph
+        append: yes
+
     - name: Create a temporary Ceph configuration file
       copy:
         dest: "/tmp/ceph_temp_config.conf"
@@ -37,11 +55,6 @@
 
     - name: Apply '_no_schedule' Label to OSD Hosts
       include_tasks: label_osd_hosts_no_schedule.yml
-
-    - name: Check Ceph cluster status and OSD creation
-      ansible.builtin.shell: |
-        sudo ceph -s
-        sudo ceph osd tree
 
     - name: Cleanup
       file:
