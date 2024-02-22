@@ -13,13 +13,12 @@
 
 - name: Copy SSH key to each host if not already installed
   ansible.builtin.shell: |
-    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] }}|| \
+    ssh-copy-id -i {{ ssh_key }}.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ item }}|| \
     echo "{{ item }}: Key already exists or another error occurred."
   loop: "{{ groups['clients'] }}"
   loop_control:
     loop_var: item
   register: ssh_copy_result
-  ignore_errors: true
   delegate_to: localhost
   run_once: true
 
