@@ -39,7 +39,7 @@
       include_tasks: label_osd_hosts_no_schedule.yml
 
     - name: Check Ceph cluster status and OSD creation
-      command: |
+      ansible.builtin.shell: |
         sudo ceph -s
         sudo ceph osd tree
 

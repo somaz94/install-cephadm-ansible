@@ -32,7 +32,6 @@
 
 # Cleanup existing Ceph cluster
 - name: Cleanup existing Ceph cluster
-  when: cleanup_ceph == "true"
   block:
     - name: Proceed with cluster cleanup
       ansible.builtin.command:
