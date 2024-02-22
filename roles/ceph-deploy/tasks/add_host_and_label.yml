@@ -1,7 +1,7 @@
 ---
 - name: Copy SSH public key to each client host
   ansible.builtin.shell: |
-    ssh-copy-id -f -i /etc/ceph/ceph.pub -o StrictHostKeyChecking=no {{ ssh_user }}@{{ hostvars[item]['ansible_host'] }} || \
+    ssh-copy-id -f -i /etc/ceph/ceph.pub {{ ssh_user }}@{{ item }} || \
     echo "{{ item }}: Key already exists or another error occurred."
   loop: "{{ groups['clients'] }}"
   loop_control:
