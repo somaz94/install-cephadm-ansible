@@ -3,9 +3,10 @@
   block:
     - name: Add public key of Ceph cluster to each host
       ansible.builtin.shell: |
-        ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}
+        ssh { ssh_user }}@{{ admin_host[0] }} "ssh-copy-id -f -i /etc/ceph/ceph.pub {{ item }}"
       loop: "{{ host_group }}"
-      delegate_to: localhost
+      delegate_to: "{{ admin_host[0] }}"
+      when: inventory_hostname == admin_node[0]
 
     - name: Add host to Ceph cluster and apply labels
       ansible.builtin.shell: |

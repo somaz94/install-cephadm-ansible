@@ -24,13 +24,7 @@
       include_tasks: distribute_ssh_keys.yml
       vars:
         cephadm_ssh_user: "{{ ssh_user }}"
-        admin_node: "{{ admin_host }}"
         cephadm_pubkey_path: "{{ ssh_key }}.pub"
-
-    - name: Fetch FSID of the Ceph cluster
-      command: "sudo ceph fsid"
-      register: ceph_fsid
-      delegate_to: "{{ admin_host }}"
 
     - name: Add and label hosts in the Ceph cluster
       include_tasks: add_host_and_label.yml
@@ -51,7 +45,8 @@
       command: |
         sudo ceph -s
         sudo ceph osd tree
-      delegate_to: "{{ admin_host }}"
+      delegate_to: "{{ admin_host[0] }}"
+      when: inventory_hostname == admin_host[0]
 
     - name: Cleanup
       file:
