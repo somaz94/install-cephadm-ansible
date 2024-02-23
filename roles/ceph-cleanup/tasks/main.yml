@@ -2,7 +2,7 @@
 # Stop all non-essential Ceph services
 - name: Stop all Ceph services except 'mgr', 'mon', and 'osd'
   ansible.builtin.shell: |
-    sudo ceph orch ls --format=json | jq -r '.[].service_name' | while read service; do if [[ "$service" != "mgr" && "$service" != "mon" && "$service" != "osd" ]]; then echo "Stopping $service..."; sudo ceph orch stop $service; else echo "Skipping $service (cannot be stopped directly)."; fi; done
+    bash -c 'sudo ceph orch ls --format=json | jq -r ".[].service_name" | while read service; do if [[ "$service" != "mgr" && "$service" != "mon" && "$service" != "osd" ]]; then echo "Stopping $service..."; sudo ceph orch stop $service; else echo "Skipping $service (cannot be stopped directly)."; fi; done'
   changed_when: false
 
 # Remove OSDs and clean up LVM
@@ -28,7 +28,7 @@
           sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | xargs -I{} sudo pvremove -y {}
           '
       changed_when: false
-      loop: "{{ groups['clients'] }}"
+      loop: "{{ groups['osds'] }}"
       loop_control:
         loop_var: item
 

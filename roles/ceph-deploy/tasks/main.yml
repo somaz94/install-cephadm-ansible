@@ -24,8 +24,12 @@
 
     - name: Bootstrap the Ceph cluster
       ansible.builtin.command: |
-        cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} --cluster-network {{ cluster_network }}
-        --ssh-user {{ ssh_user }} -c {{ temp_config_file.path }} --allow-overwrite --log-to-file
+        cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} \
+        --cluster-network {{ cluster_network }} \
+        --ssh-user {{ ssh_user }} \
+        -c {{ temp_config_file.path }} \
+        --allow-overwrite --log-to-file
+
 
     - name: Distribute Cephadm SSH keys to all hosts
       include_tasks: distribute_ssh_keys.yml
