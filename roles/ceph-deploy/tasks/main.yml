@@ -48,7 +48,7 @@
 
     - name: Label all OSD hosts with '_no_schedule'
       pause:
-        seconds: 60
+        seconds: 10
 
     - name: Apply '_no_schedule' Label to OSD Hosts
       include_tasks: label_osd_hosts_no_schedule.yml
