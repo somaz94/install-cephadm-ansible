@@ -4,27 +4,32 @@ This guide provides a comprehensive walkthrough for installing Ceph with the Cep
 <br/>
 
 ## 📋 Prerequisites
-Access to a terminal with SSH capabilities.
-Generate SSH Keys (if needed).
-  ```bash
-  ssh-keygen 
-  ```
-Copy SSH Public Key to Your Server.
-  ```bash
-  ssh-copy-id your_user@server_ip
-  ```
-Update `/etc/hosts` for Easy Access.
-  ```bash
-  vi /etc/hosts
-  server_ip your_hostname
-  ```
+- Access to a terminal with SSH capabilities.
+- Generate SSH Keys (if needed).
+```bash
+ssh-keygen 
+```
+- Copy SSH Public Key to Your Server.
+```bash
+ssh-copy-id your_user@server_ip
+```
+- Update `/etc/hosts` for Easy Access.
+```bash
+vi /etc/hosts
+server_ip your_hostname
+```
+
+<br/>
+
+## 🚨 Important Consideration
+If you plan to use Ceph as the CSI Driver for a Kubernetes cluster, ensure that your Kubernetes cluster is fully set up and operational before installing the Ceph cluster. This preparation helps avoid potential integration challenges, ensuring a smoother setup for dynamic volume provisioning.
 
 <br/>
 
 ## 🛠️ Installation Steps
 
-### Step 1: Install Python & Clone cephadm-ansible
-Clone the `cephadm-ansible` repository to your local machine and set up a virtual environment for Python.
+### Step 1: Install Python & Clone install-cephadm-ansible
+Clone the `install-cephadm-ansible` repository to your local machine and set up a Python virtual environment.
 ```bash
 # For Debian/Ubuntu (Check if Python 3.10 is available in default repos first)
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -35,7 +40,7 @@ sudo apt install -y python3.10 python3-pip git python3.10-venv
 sudo dnf module enable python310 -y
 sudo dnf install -y python310 git python3-pip python3.10-venv
 
-# Clone cephadm-ansible
+# Clone install-cephadm-ansible
 git clone https://github.com/somaz94/install-cephadm-ansible.git
 VENVDIR=cephadm-venv
 CEPHADMDIR=install-cephadm-ansible
