@@ -23,7 +23,7 @@
       register: temp_config_file
 
     - name: Bootstrap the Ceph cluster
-      ansible.builtin.command: |
+      ansible.builtin.shell: |
         cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} \
         --cluster-network {{ cluster_network }} \
         --ssh-user {{ ssh_user }} \
