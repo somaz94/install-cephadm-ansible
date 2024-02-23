@@ -4,6 +4,8 @@
     cmd: "sudo wipefs --all /dev/{{ item }}"
   become: true
   loop: "{{ osd_devices }}"
+  loop_control:
+    loop_var: item
   when: inventory_hostname in groups['osds']
 
 - name: Run preflight setup for Ceph
