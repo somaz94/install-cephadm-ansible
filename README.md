@@ -71,6 +71,118 @@ ansible-playbook -i inventory.ini playbooks/reset.yml
 
 ```
 
+### Step5: Check Ceph Cluster
+```bash
+ ceph orch host ls
+ceph -s
+ceph osd tree
+ceph orch ls --service-type mon
+ceph orch ls --service-type mgr
+ceph orch ls --service-type osd
+ceph df
+```
+### Setp 6: (Optional) Create a Ceph Pool
+
+Create a storage pool in Ceph if required.
+```bash
+# Create pool
+ex. ceph osd pool create {pool-name} {pg-num} [{pgp-num}] [replicated] [crush-rule-name] [expected-num-objects]
+ceph osd pool create kube 128
+
+# Confirm
+ceph df
+```
+
+### Step 7: (Optional Kubernetes Installed) Install Ceph-CSI
+
+Add the Ceph-CSI Helm repository and update your Helm repo listings.
+```bash
+helm repo add ceph-csi https://ceph.github.io/csi-charts
+helm repo update
+```
+
+Choose either the RBD or CephFS driver based on your needs and install it using Helm.
+
+```bash
+# Search Ceph-csi Version
+helm search repo ceph-csi
+
+# For RBD:
+helm install ceph-csi-rbd ceph-csi/ceph-csi-rbd --namespace ceph-csi --create-namespace --version <chart_version>
+
+# For CephFS:
+helm install ceph-csi-cephfs ceph-csi/ceph-csi-cephfs --namespace ceph-csi --create-namespace --version <chart_version>
+```
+
+### Step 8: (Optional Kubernetes Installed) Configure Ceph-CSI
+Create a ceph-csi-values.yaml file with your Ceph cluster's configuration details.
+
+```bash
+# Confirm Ceph fsid
+ceph fsid
+
+# Check 6789 Port
+ss -nlpt | grep 6789
+
+# Example: ceph-csi-values.yaml
+csiConfig:
+  - clusterID: "<your_ceph_fsid>" # Use `sudo ceph fsid` to find your Ceph fsid
+    monitors:
+      - "<monitor_ip>:6789"
+provisioner:
+  replicaCount: 1
+```
+
+### Step 9: (Optional Kubernetes Installed) Deploy the Ceph-CSI Driver
+```bash
+# Create Namespace 
+kubectl create namespace ceph-csi
+
+# Install Ceph-csi Driver
+helm install -n ceph-csi ceph-csi ceph-csi/ceph-csi-rbd -f ceph-csi-values.yaml
+
+# Confirm Ceph-csi Driver
+k get all -n ceph-csi
+NAME                                                    READY   STATUS    RESTARTS   AGE
+pod/ceph-csi-ceph-csi-rbd-nodeplugin-76k5s              3/3     Running   0          3s
+pod/ceph-csi-ceph-csi-rbd-provisioner-5d5dc6cc4-62dzb   7/7     Running   0          3s
+
+NAME                                                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/ceph-csi-ceph-csi-rbd-nodeplugin-http-metrics    ClusterIP   10.233.37.117   <none>        8080/TCP   3s
+service/ceph-csi-ceph-csi-rbd-provisioner-http-metrics   ClusterIP   10.233.41.120   <none>        8080/TCP   3s
+
+NAME                                              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+daemonset.apps/ceph-csi-ceph-csi-rbd-nodeplugin   1         1         1       1            1           <none>          3s
+
+NAME                                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ceph-csi-ceph-csi-rbd-provisioner   1/1     1            1           3s
+
+NAME                                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/ceph-csi-ceph-csi-rbd-provisioner-5d5dc6cc4   1         1         1       3s
+```
+
+### Step 10: (Optional Kubernetes Installed) Create a StorageClass
+Create a StorageClass to use with Ceph-CSI for dynamic provisioning.
+
+```bash
+# Confirm Ceph authentication details
+ceph auth list |grep client.admin -A5
+client.admin
+        key: AQAYINNlW7qOEhAAO++/Hvc6HBO+whoSJRT6eg==
+        caps: [mds] allow *
+        caps: [mgr] allow *
+        caps: [mon] allow *
+        caps: [osd] allow *
+
+# Apply the StorageClass configuration
+k apply -f ceph-csi-storageclass.yaml 
+
+# Confirm
+k get sc
+NAME            PROVISIONER        RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+rbd (default)   rbd.csi.ceph.com   Delete          Immediate           true      
+```
+
 <br/>
 
 ## Reference
