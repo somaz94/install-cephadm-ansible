@@ -22,10 +22,13 @@
           osd_pool_default_size = {{ ceph_config.global.osd_pool_default_size }}
       register: temp_config_file
 
-    - name: Ensure temporary Ceph configuration file exists
+    - name: Check if temporary Ceph configuration file exists
       ansible.builtin.stat:
         path: "{{ temp_config_file.path }}"
       register: config_file_stat
+      until: config_file_stat.stat.exists
+      retries: 5
+      delay: 2
 
     - name: Fail if temporary Ceph configuration file does not exist
       ansible.builtin.fail:
