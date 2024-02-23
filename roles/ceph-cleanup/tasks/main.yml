@@ -27,7 +27,7 @@
             if [ -n "$lv" ]; then sudo lvremove -y "$lv"; fi
           done
 
-          vg_names=$(sudo vgscan | awk "/ceph/ {gsub(/[\042]/, \"\", \$3); print \$3}")
+          vg_names=$(sudo vgscan | awk "/ceph/ {gsub(/[\042]/, \"\", \$4); print \$4}")
           for vg in $vg_names; do
             if [ -n "$vg" ]; then sudo vgremove -y "$vg"; fi
           done
