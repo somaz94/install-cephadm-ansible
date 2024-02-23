@@ -13,20 +13,19 @@
         osd_ids=$(sudo ceph osd ls)
         for osd_id in $osd_ids; do
           echo "Removing OSD.$osd_id..."
-          sudo ceph orch daemon stop osd.$osd_id
-          sleep 10
-          sudo ceph osd out $osd_id
-          sleep 10
-          sudo ceph osd rm $osd_id
-          sleep 10
+          sudo ceph orch daemon rm osd.$osd_id --force
+          sudo ceph osd crush remove osd.$osd_id
+          sudo ceph osd purge $osd_id --yes-i-really-mean-it
         done
+      changed_when: false
+
+    - name: Cleanup LVM volumes on OSD hosts
+      ansible.builtin.shell: |
         ssh {{ item }} '
-          sudo lvscan | awk "/ceph/ {print \$2}" | xargs -I{} sudo lvremove -y {}
-          sleep 5
-          sudo vgscan | awk "/ceph/ {print \$4}" | xargs -I{} sudo vgremove -y {}
-          sleep 5
-          sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | xargs -I{} sudo pvremove -y {}
-          '
+          sudo lvscan | awk "/ceph/ {print \$2}" | while read lv; do sudo lvremove -y "$lv"; done
+          sudo vgscan | awk "/ceph/ {print \$4}" | while read vg; do sudo vgremove -y "$vg"; done
+          sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | while read pv; do sudo pvremove -y "$pv"; done
+        '
       changed_when: false
       loop: "{{ groups['osds'] }}"
       loop_control:
@@ -39,8 +38,14 @@
       ansible.builtin.shell: |
         if sudo test -d /var/lib/ceph; then
           echo "Cleaning up existing Ceph cluster..."
-          sudo cephadm rm-cluster --fsid=$(sudo ceph fsid) --force
-          echo "Ceph cluster removed successfully."
+          fsid=$(sudo ceph fsid)
+          if [ -n "$fsid" ]; then
+            sudo cephadm rm-cluster --fsid=$fsid --force
+            echo "Ceph cluster removed successfully."
+          else
+            echo "Failed to obtain Ceph FSID. Exiting."
+            exit 1
+          fi
         else
           echo "No existing Ceph cluster found to clean up."
         fi
@@ -48,25 +53,23 @@
 
     - name: Removing any leftover Ceph containers
       ansible.builtin.shell: |
-        for host in "{{ item }}"; do
-          echo "Cleaning up containers on $host..."
-          ssh "$ssh_user@$host" '
-          if command -v docker &> /dev/null; then
-            container_runtime="docker"
-          elif command -v podman &> /dev/null; then
-            container_runtime="podman"
-          else
-            echo "No container runtime (Docker or Podman) found on '"$host"'. Skipping container cleanup."
-            exit 1
-          fi
-          sudo $container_runtime ps -a | grep ceph | awk "{print \$1}" | xargs -I {} sudo $container_runtime rm -f {}
-          '
-          if [ $? -ne 0 ]; then
-            echo "Error cleaning up containers on $host"
-          else
-            echo "Leftover Ceph containers removed successfully on $host."
-          fi
-        done
+        echo "Cleaning up containers on {{ item }}..."
+        ssh "{{ ssh_user }}@{{ item }}" '
+        if command -v docker &> /dev/null; then
+          container_runtime="docker"
+        elif command -v podman &> /dev/null; then
+          container_runtime="podman"
+        else
+          echo "No container runtime (Docker or Podman) found. Skipping container cleanup."
+          exit 1
+        fi
+        sudo $container_runtime ps -a --format "{{.Names}}" | grep ceph | while read container_name; do sudo $container_runtime rm -f "$container_name"; done
+        '
+        if [ $? -ne 0 ]; then
+          echo "Error cleaning up containers on {{ item }}"
+        else
+          echo "Leftover Ceph containers removed successfully on {{ item }}."
+        fi
       changed_when: false
       loop: "{{ groups['clients'] }}"
       loop_control:
