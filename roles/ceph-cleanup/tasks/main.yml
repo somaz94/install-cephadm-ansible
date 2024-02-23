@@ -68,7 +68,7 @@
     - name: Removing any leftover Ceph containers
       ansible.builtin.shell: |
         echo "Cleaning up containers on {{ item }}..."
-        ssh -o StrictHostKeyChecking=no "{{ ssh_user }}@{{ item }}" '
+        ssh -o StrictHostKeyChecking=no -i {{ ssh_key_private }}  "{{ ssh_user }}@{{ item }}" '
         if command -v docker &> /dev/null; then
           container_runtime="docker"
         elif command -v podman &> /dev/null; then
