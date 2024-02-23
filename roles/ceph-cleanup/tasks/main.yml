@@ -22,15 +22,18 @@
     - name: Cleanup LVM volumes on OSD hosts
       ansible.builtin.shell: |
         ssh -o StrictHostKeyChecking=no -i {{ ssh_key_private }} {{ ssh_user }}@{{ item }} '
-          sudo lvscan | awk "/ceph/ {print \$2}" | while read lv; do
-            lv_clean=$(echo $lv | tr -d "\'")
-            if [ -n "$lv_clean" ]; then sudo lvremove -y "$lv_clean"; fi
+          lv_paths=$(sudo lvscan | awk "/ceph/ {gsub(/[\047]/, \"\", \$2); print \$2}")
+          for lv in $lv_paths; do
+            if [ -n "$lv" ]; then sudo lvremove -y "$lv"; fi
           done
-          sudo vgscan | awk "/ceph/ {print \$3}" | while read vg; do
-            vg_clean=$(echo $vg | tr -d "\"")
-            if [ -n "$vg_clean" ]; then sudo vgremove -y "$vg_clean"; fi
+
+          vg_names=$(sudo vgscan | awk "/ceph/ {gsub(/[\042]/, \"\", \$3); print \$3}")
+          for vg in $vg_names; do
+            if [ -n "$vg" ]; then sudo vgremove -y "$vg"; fi
           done
-          sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | while read pv; do
+
+          pv_paths=$(sudo pvscan | grep "/dev/sd" | awk "{gsub(/[\042]/, \"\", \$2); print \$2}")
+          for pv in $pv_paths; do
             vg=$(sudo pvdisplay "$pv" | grep "VG Name" | awk "{print \$3}")
             if [ -n "$vg" ]; then
               sudo vgreduce "$vg" "$pv" || true
