@@ -1,13 +1,13 @@
 ---
 - name: Wipe OSD devices on host
   ansible.builtin.command: |
-    ssh -o StrictHostKeyChecking=no "{{ ssh_user }}@{{ item }}"
-    sudo wipefs --all "/dev/{{ item }}"
+    ssh -o StrictHostKeyChecking=no "{{ ssh_user }}@{{ item.0 }}"
+    sudo wipefs --all "/dev/{{ item.1 }}"
   become: true
-  loop: "{{ osd_devices }}"
+  loop: "{{ groups['osds'] | product(osd_devices) | list }}"
   loop_control:
     loop_var: item
-  when: inventory_hostname in groups['osds']
+    label: "{{ item.0 }} - /dev/{{ item.1 }}"
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
