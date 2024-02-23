@@ -187,7 +187,6 @@
       until: result is succeeded
       when: group_names == [client_group]
 
-
     - name: ensure chronyd is running
       service:
         name: chronyd
