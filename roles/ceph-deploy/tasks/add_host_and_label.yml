@@ -1,16 +1,23 @@
 ---
-- name: Add admin host to Ceph cluster and apply mon,mgr labels
+
+- name: Add all host to Ceph cluster
   ansible.builtin.shell: |
-    ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
+    ceph orch host label add {{ item }} _{{ hostvars[item]['ansible_host'] }} || \
+    echo "{{ item }}: Failed to {{ item }} add host to Ceph cluster 
+  loop: "{{ groups['clients'] }}"
+  loop_control:
+    loop_var: item
+
+- name: Add admin apply mon,mgr labels
+  ansible.builtin.shell: |
     ceph orch host label add {{ item }} mon,mgr || \
     echo "{{ item }}: Failed to add and label as mon,mgr."
   loop: "{{ groups['admin'] }}"
   loop_control:
     loop_var: item
 
-- name: Add OSD host to Ceph cluster and apply osd label
+- name: Add OSD apply osd label
   ansible.builtin.shell: |
-    ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} && \
     ceph orch host label add {{ item }} osd || \
     echo "{{ item }}: Failed to add and label as osd."
   loop: "{{ groups['osds'] }}"
