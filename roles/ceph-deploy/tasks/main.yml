@@ -15,16 +15,15 @@
 
     - name: Create a temporary Ceph configuration file
       copy:
-        dest: "/tmp/ceph_temp_config.conf"
+        dest: "{{ ceph_config_file_path }}"
         content: |
           [global]
           osd crush chooseleaf type = {{ ceph_config.global.osd_crush_chooseleaf_type }}
           osd_pool_default_size = {{ ceph_config.global.osd_pool_default_size }}
-      register: temp_config_file
 
     - name: Check if temporary Ceph configuration file exists
       ansible.builtin.stat:
-        path: "{{ temp_config_file.path }}"
+        path: "{{ ceph_config_file_path }}"
       register: config_file_stat
       until: config_file_stat.stat.exists
       retries: 5
@@ -40,7 +39,7 @@
         cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} \
         --cluster-network {{ cluster_network }} \
         --ssh-user {{ ssh_user }} \
-        -c {{ temp_config_file.path }} \
+        -c {{ ceph_config_file_path }} \
         --allow-overwrite --log-to-file
 
     - name: Distribute Cephadm SSH keys to all hosts
