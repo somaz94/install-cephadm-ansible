@@ -21,10 +21,22 @@
 
     - name: Cleanup LVM volumes on OSD hosts
       ansible.builtin.shell: |
-        ssh {{ item }} '
-          sudo lvscan | awk "/ceph/ {print \$2}" | while read lv; do sudo lvremove -y "$lv"; done
-          sudo vgscan | awk "/ceph/ {print \$4}" | while read vg; do sudo vgremove -y "$vg"; done
-          sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | while read pv; do sudo pvremove -y "$pv"; done
+        ssh -o StrictHostKeyChecking=no -i {{ ssh_key_private }} {{ ssh_user }}@{{ item }} '
+          sudo lvscan | awk "/ceph/ {print \$2}" | while read lv; do
+            lv_clean=$(echo $lv | tr -d "\'")
+            if [ -n "$lv_clean" ]; then sudo lvremove -y "$lv_clean"; fi
+          done
+          sudo vgscan | awk "/ceph/ {print \$3}" | while read vg; do
+            vg_clean=$(echo $vg | tr -d "\"")
+            if [ -n "$vg_clean" ]; then sudo vgremove -y "$vg_clean"; fi
+          done
+          sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | while read pv; do
+            vg=$(sudo pvdisplay "$pv" | grep "VG Name" | awk "{print \$3}")
+            if [ -n "$vg" ]; then
+              sudo vgreduce "$vg" "$pv" || true
+              sudo pvremove -y "$pv"
+            fi
+          done
         '
       changed_when: false
       loop: "{{ groups['osds'] }}"

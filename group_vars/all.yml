@@ -2,8 +2,11 @@
 cluster_network: "10.77.101.0/24"
 ssh_user: "somaz"
 
-# SSH and playbook settings
+# Path ceph.pub (Not Modfiy)
 ssh_key: "/etc/ceph/ceph.pub"
+
+# Your SSH Private Key Path
+ssh_key_private: "/home/somaz/.ssh/id_rsa"
 
 # OSD configuration
 osd_devices: ["sdb", "sdc", "sdd"]

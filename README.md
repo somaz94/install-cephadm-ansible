@@ -7,6 +7,19 @@ This guide provides a comprehensive walkthrough for installing Ceph with the Cep
 A running Kubernetes cluster.
 Helm 3 installed.
 Access to a terminal with SSH capabilities.
+Generate SSH Keys (if needed).
+  ```bash
+  ssh-keygen 
+  ```
+Copy SSH Public Key to Your Server.
+  ```bash
+  ssh-copy-id your_user@server_ip
+  ```
+Update `/etc/hosts` for Easy Access
+  ```bash
+  vi /etc/hosts
+  server_ip your_hostname
+  ```
 
 <br/>
 
