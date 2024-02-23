@@ -3,11 +3,11 @@
   ansible.builtin.command: |
     ssh -o StrictHostKeyChecking=no "{{ ssh_user }}@{{ item.0 }}"
     sudo wipefs --all "/dev/{{ item.1 }}"
-  become: true
   loop: "{{ groups['osds'] | product(osd_devices) | list }}"
   loop_control:
     loop_var: item
     label: "{{ item.0 }} - /dev/{{ item.1 }}"
+  when: inventory_hostname in groups['osds']
 
 - name: Run preflight setup for Ceph
   include_tasks: cephadm-preflight.yml
