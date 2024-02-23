@@ -1,7 +1,8 @@
 ---
 - name: Wipe OSD devices on host
-  ansible.builtin.command:
-    cmd: "sudo wipefs --all /dev/{{ item }}"
+  ansible.builtin.command: |
+    ssh -o StrictHostKeyChecking=no "{{ ssh_user }}@{{ item }}"
+    sudo wipefs --all "/dev/{{ item }}"
   become: true
   loop: "{{ osd_devices }}"
   loop_control:
