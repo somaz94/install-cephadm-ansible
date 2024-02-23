@@ -22,6 +22,16 @@
           osd_pool_default_size = {{ ceph_config.global.osd_pool_default_size }}
       register: temp_config_file
 
+    - name: Ensure temporary Ceph configuration file exists
+      ansible.builtin.stat:
+        path: "{{ temp_config_file.path }}"
+      register: config_file_stat
+
+    - name: Fail if temporary Ceph configuration file does not exist
+      ansible.builtin.fail:
+        msg: "Temporary Ceph configuration file not found."
+      when: not config_file_stat.stat.exists
+
     - name: Bootstrap the Ceph cluster
       ansible.builtin.shell: |
         cephadm bootstrap --mon-ip {{ hostvars[groups['admin'][0]]['ansible_host'] }} \
