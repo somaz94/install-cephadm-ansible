@@ -38,7 +38,7 @@ sudo dnf install -y python310 git python3-pip python3.10-venv
 # Clone cephadm-ansible
 git clone https://github.com/somaz94/install-cephadm-ansible.git
 VENVDIR=cephadm-venv
-CEPHADMDIR=install-cephadm-script
+CEPHADMDIR=install-cephadm-ansible
 python3.10 -m venv $VENVDIR
 source $VENVDIR/bin/activate
 cd $CEPHADMDIR
