@@ -2,7 +2,7 @@
 
 - name: Add all host to Ceph cluster
   ansible.builtin.shell: |
-    ceph orch host label add {{ item }} _{{ hostvars[item]['ansible_host'] }} || \
+    ceph orch host add {{ item }} {{ hostvars[item]['ansible_host'] }} || \
     echo "{{ item }}: Failed to {{ item }} add host to Ceph cluster 
   loop: "{{ groups['clients'] }}"
   loop_control:
