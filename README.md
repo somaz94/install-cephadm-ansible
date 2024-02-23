@@ -71,6 +71,9 @@ ansible-playbook -i inventory.ini playbooks/site.yml
 ansible-playbook -i inventory.ini playbooks/site.yml -e "run_ceph_common=true run_ceph_deploy=false"
 ansible-playbook -i inventory.ini playbooks/site.yml -e "run_ceph_common=false run_ceph_deploy=true"
 
+# Repo Options(Enable Red Hat Ceph Storage Tools Repository)
+ansible-playbook -i inventory.ini playbooks/site.yml --extra-vars "ceph_origin=rhcs" 
+
 # Delete Cluster
 ansible-playbook -i inventory.ini playbooks/reset.yml
 
