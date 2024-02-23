@@ -20,7 +20,7 @@
           sudo ceph osd rm $osd_id
           sleep 10
         done
-        ssh {{ osd_host }} '
+        ssh {{ item }} '
           sudo lvscan | awk "/ceph/ {print \$2}" | xargs -I{} sudo lvremove -y {}
           sleep 5
           sudo vgscan | awk "/ceph/ {print \$4}" | xargs -I{} sudo vgremove -y {}
@@ -28,6 +28,9 @@
           sudo pvscan | grep "/dev/sd" | awk "{print \$2}" | xargs -I{} sudo pvremove -y {}
           '
       changed_when: false
+      loop: "{{ groups['clients'] }}"
+      loop_control:
+        loop_var: item
 
 # Cleanup existing Ceph cluster
 - name: Cleanup existing Ceph cluster

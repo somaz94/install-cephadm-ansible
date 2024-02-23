@@ -2,6 +2,6 @@
   become: true
   gather_facts: true
   roles:
-    - ceph-cleanup
+    - role: ceph-cleanup
       delegate_to: localhost
       run_once: true
