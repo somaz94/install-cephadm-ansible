@@ -1,15 +1,15 @@
 # General cluster settings
-cluster_network: ""
-ssh_user: "somaz"
+cluster_network: "" # ex. 10.77.101.0/24
+ssh_user: "" # ssh user
 
 # Path ceph.pub (Not Modfiy)
 ssh_key: "/etc/ceph/ceph.pub"
 
 # Your SSH Private Key Path
-ssh_key_private: ""
+ssh_key_private: "" 
 
 # OSD configuration
-osd_devices: ["sdb", "sdc", "sdd"]
+osd_devices: ["sdb", "sdc", "sdd"] # Modify osd_devices
 
 # Ceph configuration
 ceph_config:
