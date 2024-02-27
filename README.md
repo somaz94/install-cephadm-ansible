@@ -15,14 +15,14 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 <br/>
 
 ## Automated Tasks Overview
-- **1. Variable Validation**: Initial step to ensure all prerequisites and variables are set correctly.
-- **2. Role and Defaults Setup**: Retrieves roles for setting default configurations common to all Ceph installations.
-- **3. Repository Configuration**:
+- **Variable Validation**: Initial step to ensure all prerequisites and variables are set correctly.
+- **Role and Defaults Setup**: Retrieves roles for setting default configurations common to all Ceph installations.
+- **Repository Configuration**:
   - **Red Hat Family OS**: Configures RHCS tools repositories, adds community or IBM Ceph stable repositories, manages development repositories via Shaman, and supports custom repository configurations.
   - **Ubuntu**: Manages apt cache, sets up Ceph repositories based on the origin, and ensures all prerequisites are installed.
-- **4. Prerequisite Installation**: Includes the installation of necessary packages and the chronyd service for both Red Hat family OS and Ubuntu.
-- **5. Container Engine Management**: Installs and configures the appropriate container engine (podman or docker) based on the system and setup requirements.
-- **6. Insecure Registry Configuration**: Optional configuration for using insecure container registries, useful in development environments or with private registries.
+- **Prerequisite Installation**: Includes the installation of necessary packages and the chronyd service for both Red Hat family OS and Ubuntu.
+- **Container Engine Management**: Installs and configures the appropriate container engine (podman or docker) based on the system and setup requirements.
+- **Insecure Registry Configuration**: Optional configuration for using insecure container registries, useful in development environments or with private registries.
 
 <br/>
 
