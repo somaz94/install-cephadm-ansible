@@ -1,10 +1,14 @@
 ---
 - name: Setup initial Ceph configuration
   block:
-    - name: Add SSH user to the sudo group
+    - name: Determine the sudo group name based on the distribution
+      set_fact:
+        sudo_group: "{{ 'wheel' if ansible_facts['os_family'] == 'RedHat' else 'sudo' }}"
+
+    - name: Add SSH user to the appropriate sudo group
       ansible.builtin.user:
         name: "{{ ssh_user }}"
-        groups: sudo
+        groups: "{{ sudo_group }}"
         append: yes
 
     - name: Add SSH user to the docker group
@@ -12,6 +16,15 @@
         name: "{{ ssh_user }}"
         groups: docker
         append: yes
+      when: ansible_facts['os_family'] != 'RedHat'
+
+    - name: Set hostname for each client host via SSH
+      ansible.builtin.command: 
+        cmd: "ssh -i {{ ssh_key_private }} {{ ssh_user }}@{{ item }} 'sudo hostnamectl set-hostname {{ item }}'"
+      loop: "{{ groups['clients'] }}"
+      loop_control:
+        loop_var: item
+      when: ansible_facts['os_family'] == 'RedHat'
 
     - name: Create a temporary Ceph configuration file
       copy:
