@@ -144,6 +144,11 @@ Create a storage pool in Ceph if required.
 ex. ceph osd pool create {pool-name} {pg-num} [{pgp-num}] [replicated] [crush-rule-name] [expected-num-objects]
 ceph osd pool create kube 128
 
+# Modify pool replica
+ex. ceph osd pool get [pool-name] size
+size: 1 # Confirm replica (size:1 = replica:1)
+ex. ceph osd pool set [pool-name] size 2 # Change replica 2 (size:2 = replica:2)
+
 # Confirm
 ceph df
 ```
