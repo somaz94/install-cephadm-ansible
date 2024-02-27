@@ -20,7 +20,7 @@
 
     - name: Set hostname for each client host via SSH
       ansible.builtin.command: 
-        cmd: "ssh -i {{ ssh_key_private }} {{ ssh_user }}@{{ item }} 'sudo hostnamectl set-hostname {{ item }}'"
+        cmd: "ssh -i {{ ssh_key_private }} -o StrictHostKeyChecking=no {{ ssh_user }}@{{ item }} 'sudo hostnamectl set-hostname {{ item }}'"
       loop: "{{ groups['clients'] }}"
       loop_control:
         loop_var: item
