@@ -16,6 +16,15 @@
   loop_control:
     loop_var: item
 
+- name: Deploy MON services on another admin nodes
+  ansible.builtin.shell: |
+    ceph orch host label add {{ item }} _admin || echo "{{ item }}: Failed to apply MON service"
+    ceph orch apply mon --placement='{{ groups["admin"] | length }}'
+  loop: "{{ groups['admin'] }}"
+  loop_control:
+    loop_var: item
+  when: item != groups['admin'][0]
+
 - name: Add OSD apply osd label
   ansible.builtin.shell: |
     ceph orch host label add {{ item }} osd || \
