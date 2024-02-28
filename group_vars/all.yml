@@ -8,9 +8,6 @@ ssh_key: "/etc/ceph/ceph.pub"
 # Your SSH Private Key Path
 ssh_key_private: "" # ex. /home/somaz/.ssh/id_rsa
 
-# # OSD configuration
-# osd_devices: ["sdb", "sdc", "sdd"] # Modify osd_devices
-
 # Ceph configuration
 ceph_config:
   global:
