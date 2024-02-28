@@ -1,0 +1,6 @@
+- name: Dynamically add OSDs based on host-specific osd_devices
+  ansible.builtin.command: |
+    ceph orch daemon add osd {{ host }}:/dev/{{ item }}
+  loop: "{{ osd_devices }}"
+  loop_control:
+    loop_var: item

@@ -68,8 +68,17 @@
       pause:
         seconds: 60
 
-    - name: Add OSDs and Ensure They Are Ready
-      include_tasks: add_osds_and_wait.yml
+    # - name: Add OSDs and Ensure They Are Ready
+    #   include_tasks: add_osds_and_wait.yml
+
+    - name: Include OSD addition tasks for each host in the osds group
+      include_tasks: add_osd.yml
+      loop: "{{ groups['osds'] }}"
+      loop_control:
+        loop_var: host
+      vars:
+        osd_devices: "{{ hostvars[host]['osd_devices'] }}"
+      when: "'osd_devices' in hostvars[host]"
 
     - name: Label all OSD hosts with '_no_schedule'
       pause:
