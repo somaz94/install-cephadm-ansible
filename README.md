@@ -39,14 +39,14 @@ For detailed instructions on how to use this playbook, including setting up your
 ```bash
 ssh-keygen 
 ```
-- Copy SSH Public Key to Your Server.
-```bash
-ssh-copy-id your_user@server_ip
-```
 - Update `/etc/hosts` for Easy Access.
 ```bash
 vi /etc/hosts
 server_ip your_hostname
+```
+- Copy SSH Public Key to Your Server.
+```bash
+ssh-copy-id your_user@server_ip
 ```
 
 <br/>
