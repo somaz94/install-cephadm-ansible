@@ -1,8 +1,13 @@
 ---
-- name: Prepare and add OSDs on each device on OSD host
+# - name: Prepare and add OSDs on each device on OSD host
+#   ansible.builtin.command: |
+#     ceph orch daemon add osd {{ item.0 }}:/dev/{{ item.1 }}
+#   loop: "{{ groups['osds'] | product(osd_devices) | list }}"
+#   loop_control:
+#     loop_var: item
+#     label: "{{ item.0 }} - /dev/{{ item.1 }}"
+- name: Prepare and add OSDs for each specified device on OSD host
   ansible.builtin.command: |
-    ceph orch daemon add osd {{ item.0 }}:/dev/{{ item.1 }}
-  loop: "{{ groups['osds'] | product(osd_devices) | list }}"
-  loop_control:
-    loop_var: item
-    label: "{{ item.0 }} - /dev/{{ item.1 }}"
+    ceph orch daemon add osd {{ inventory_hostname }}:/dev/{{ item }}
+  loop: "{{ hostvars[inventory_hostname]['osd_devices'] }}"
+  when: inventory_hostname in groups['osds'] and 'osd_devices' in hostvars[inventory_hostname]

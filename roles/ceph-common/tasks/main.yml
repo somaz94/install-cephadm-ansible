@@ -1,9 +1,17 @@
 ---
+# - name: Wipe OSD devices on host
+#   ansible.builtin.command:
+#     cmd: "sudo wipefs --all /dev/{{ item }}"
+#   become: true
+#   loop: "{{ osd_devices }}"
+#   loop_control:
+#     loop_var: item
+#   when: inventory_hostname in groups['osds']
 - name: Wipe OSD devices on host
   ansible.builtin.command:
     cmd: "sudo wipefs --all /dev/{{ item }}"
   become: true
-  loop: "{{ osd_devices }}"
+  loop: "{{ hostvars[inventory_hostname]['osd_devices'] | default(['sdb', 'sdc', 'sdd']) }}"
   loop_control:
     loop_var: item
   when: inventory_hostname in groups['osds']
