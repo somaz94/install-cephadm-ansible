@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: csi-rbd-secret
+  namespace: kube-system
+stringData:
+  userID: admin # ceph user id(client.admin) admin user
+  userKey: "AQC899JlcL6CKBAAQsBOJqWw/CVTQKUD+2FbyQ==" # client.admin key
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+   name: rbd
+   annotations:
+     storageclass.beta.kubernetes.io/is-default-class: "true"
+     storageclass.kubesphere.io/supported-access-modes: '["ReadWriteOnce","ReadOnlyMany","ReadWriteMany"]'
+provisioner: rbd.csi.ceph.com
+parameters:
+   clusterID: "afdfd487-cef1-11ee-8e5d-831aa89df15f" # sudo ceph fsid
+   pool: "kube" # sudo ceph df (Confirm Pool list
+   imageFeatures: layering
+   csi.storage.k8s.io/provisioner-secret-name: csi-rbd-secret # Secret 
+   csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+   csi.storage.k8s.io/controller-expand-secret-name: csi-rbd-secret
+   csi.storage.k8s.io/controller-expand-secret-namespace: kube-system
+   csi.storage.k8s.io/node-stage-secret-name: csi-rbd-secret
+   csi.storage.k8s.io/node-stage-secret-namespace: kube-system
+   csi.storage.k8s.io/fstype: ext4
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
+   - discard

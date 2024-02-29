@@ -1,0 +1,6 @@
+csiConfig:
+  - clusterID: "<your_ceph_fsid>" # Use `sudo ceph fsid` to find your Ceph fsid
+    monitors:
+      - "<monitor_ip>:6789"
+provisioner:
+  replicaCount: 1
