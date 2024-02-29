@@ -195,6 +195,9 @@ csiConfig:
       - "<monitor_ip>:6789"
 provisioner:
   replicaCount: 1
+
+# apply
+k apply -f ceph-csi-test/ceph-csi-values.yaml
 ```
 
 ### Step 9: (Optional Kubernetes Installed) Deploy the Ceph-CSI Driver
@@ -239,12 +242,20 @@ client.admin
         caps: [osd] allow *
 
 # Apply the StorageClass configuration
-k apply -f ceph-csi-storageclass.yaml 
+k apply -f ceph-csi-test/ceph-csi-storageclass.yaml 
 
 # Confirm
 k get sc
 NAME            PROVISIONER        RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
 rbd (default)   rbd.csi.ceph.com   Delete          Immediate           true      
+```
+
+<br/>
+
+### Step 11: Deploy Test Pod
+```bash
+# Apply
+k apply -f ceph-csi-test/test-pod.yaml
 ```
 
 <br/>
