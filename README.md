@@ -61,10 +61,14 @@ If you plan to use Ceph as the CSI Driver for a Kubernetes cluster, ensure that 
 ### Step 1: Install Python & Clone install-cephadm-ansible
 Clone the `install-cephadm-ansible` repository to your local machine and set up a Python virtual environment.
 ```bash
-# For Debian/Ubuntu (Check if Python 3.10 is available in default repos first)
+# For Debian/Ubuntu 20.04 
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get -y update
 sudo apt install -y python3.10 python3-pip git python3.10-venv
+
+# For Debian/Ubuntu 22.04 
+sudo apt-get -y update
+sudo apt install -y python3 python3-venv python3-pip git 
 
 # For RedHat/CentOS 8 (Reference: https://www.atlantic.net/vps-hosting/how-to-install-python-3-10-on-rocky-linux/)
 
