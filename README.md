@@ -4,7 +4,7 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## Key Features
+## 🔑 Key Features
 - **Variable Validation**: Ensures all necessary variables and conditions are validated before proceeding with the deployment, ensuring a smoother and error-free configuration process.
 - **Dynamic Repository Configuration**: Automatically configures the appropriate repositories for Ceph packages based on the source of the Ceph installation, including options for Red Hat Ceph Storage (RHCS), community releases, IBM, development versions from Shaman, and custom repositories.
 - **Operating System Compatibility**: Tailored tasks for both Red Hat family operating systems (including RHEL and CentOS) and Ubuntu, ensuring compatibility and streamlined setup across different environments.
@@ -14,7 +14,7 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## Automated Tasks Overview
+## 🔬 Automated Tasks Overview
 - **Variable Validation**: Initial step to ensure all prerequisites and variables are set correctly.
 - **Role and Defaults Setup**: Retrieves roles for setting default configurations common to all Ceph installations.
 - **Repository Configuration**:
@@ -26,7 +26,7 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## Usage
+## 🔖 Usage
 This playbook is designed for system administrators and DevOps professionals looking to automate the deployment and setup of Ceph clusters. It provides a flexible and efficient approach to managing the underlying infrastructure required for Ceph, leveraging Ansible's powerful automation capabilities.
 
 For detailed instructions on how to use this playbook, including setting up your inventory and customizing the playbook variables for your environment, refer to the accompanying documentation.
