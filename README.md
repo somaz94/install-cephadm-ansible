@@ -132,7 +132,7 @@ ansible-playbook -i inventory.ini playbooks/reset.yml
 
 ### Step5: Check Ceph Cluster
 ```bash
- ceph orch host ls
+ceph orch host ls
 ceph -s
 ceph osd tree
 ceph orch ls --service-type mon
