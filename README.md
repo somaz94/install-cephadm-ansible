@@ -4,7 +4,7 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## 🔑 Key Features
+## Key Features
 - **Variable Validation**: Ensures all necessary variables and conditions are validated before proceeding with the deployment, ensuring a smoother and error-free configuration process.
 - **Dynamic Repository Configuration**: Automatically configures the appropriate repositories for Ceph packages based on the source of the Ceph installation, including options for Red Hat Ceph Storage (RHCS), community releases, IBM, development versions from Shaman, and custom repositories.
 - **Operating System Compatibility**: Tailored tasks for both Red Hat family operating systems (including RHEL and CentOS) and Ubuntu, ensuring compatibility and streamlined setup across different environments.
@@ -14,7 +14,7 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## 🔬 Automated Tasks Overview
+## Automated Tasks Overview
 - **Variable Validation**: Initial step to ensure all prerequisites and variables are set correctly.
 - **Role and Defaults Setup**: Retrieves roles for setting default configurations common to all Ceph installations.
 - **Repository Configuration**:
@@ -26,14 +26,14 @@ This Ansible playbook provides a comprehensive solution for automating the deplo
 
 <br/>
 
-## 🔖 Usage
+## Usage
 This playbook is designed for system administrators and DevOps professionals looking to automate the deployment and setup of Ceph clusters. It provides a flexible and efficient approach to managing the underlying infrastructure required for Ceph, leveraging Ansible's powerful automation capabilities.
 
 For detailed instructions on how to use this playbook, including setting up your inventory and customizing the playbook variables for your environment, refer to the accompanying documentation.
 
 <br/>
 
-## 📋 Prerequisites
+## Prerequisites
 - Access to a terminal with SSH capabilities.
 - Generate SSH Keys (if needed).
 ```bash
@@ -56,7 +56,9 @@ If you plan to use Ceph as the CSI Driver for a Kubernetes cluster, ensure that 
 
 <br/>
 
-## 🛠️ Installation Steps
+## Installation Steps
+
+<br/>
 
 ### Step 1: Install Python & Clone install-cephadm-ansible
 Clone the `install-cephadm-ansible` repository to your local machine and set up a Python virtual environment.
@@ -101,8 +103,12 @@ cd $CEPHADMDIR
 pip install -U -r requirements.txt
 ```
 
+<br/>
+
 ### Step 2: Prepare Your Inventory and group_vars
 Edit the `inventory.ini` file and `group_vars/all.yml` to specify your cluster configuration.
+
+<br/>
 
 ### Step3: Confirm Ansible
 ```bash
@@ -112,6 +118,8 @@ ansible --version
 # Check Ansible Ping
 ansible all -i inventory.ini -m ping
 ```
+
+<br/>
 
 ### Step4: Playbook Ansible
 ```bash
@@ -130,6 +138,8 @@ ansible-playbook -i inventory.ini playbooks/reset.yml
 
 ```
 
+<br/>
+
 ### Step5: Check Ceph Cluster
 ```bash
 ceph orch host ls
@@ -140,6 +150,9 @@ ceph orch ls --service-type mgr
 ceph orch ls --service-type osd
 ceph df
 ```
+
+<br/>
+
 ### Setp 6: (Optional) Create a Ceph Pool
 
 Create a storage pool in Ceph if required.
@@ -157,6 +170,8 @@ ex. ceph osd pool set [pool-name] size 2 # Change replica 2 (size:2 = replica:2)
 ceph df
 ```
 
+<br/>
+
 ### Step 7: (Optional Kubernetes Installed) Install Ceph-CSI
 
 Add the Ceph-CSI Helm repository and update your Helm repo listings.
@@ -164,6 +179,8 @@ Add the Ceph-CSI Helm repository and update your Helm repo listings.
 helm repo add ceph-csi https://ceph.github.io/csi-charts
 helm repo update
 ```
+
+<br/>
 
 Choose either the RBD or CephFS driver based on your needs and install it using Helm.
 
@@ -177,6 +194,8 @@ helm install ceph-csi-rbd ceph-csi/ceph-csi-rbd --namespace ceph-csi --create-na
 # For CephFS:
 helm install ceph-csi-cephfs ceph-csi/ceph-csi-cephfs --namespace ceph-csi --create-namespace --version <chart_version>
 ```
+
+<br/>
 
 ### Step 8: (Optional Kubernetes Installed) Configure Ceph-CSI
 Create a ceph-csi-values.yaml file with your Ceph cluster's configuration details.
@@ -199,6 +218,8 @@ provisioner:
 # apply
 k apply -f ceph-csi-test/ceph-csi-values.yaml
 ```
+
+<br/>
 
 ### Step 9: (Optional Kubernetes Installed) Deploy the Ceph-CSI Driver
 ```bash
@@ -227,6 +248,8 @@ deployment.apps/ceph-csi-ceph-csi-rbd-provisioner   1/1     1            1      
 NAME                                                          DESIRED   CURRENT   READY   AGE
 replicaset.apps/ceph-csi-ceph-csi-rbd-provisioner-5d5dc6cc4   1         1         1       3s
 ```
+
+<br/>
 
 ### Step 10: (Optional Kubernetes Installed) Create a StorageClass
 Create a StorageClass to use with Ceph-CSI for dynamic provisioning.
