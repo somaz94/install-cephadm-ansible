@@ -14,8 +14,5 @@
     loop_var: item
   vars:
     osd_hosts: "{{ groups['osds'] }}"
-  when: 
+  when:
     - "'osd_devices' in hostvars[host]"
-  with_items: "{{ osd_hosts }}"
-  loop_control:
-    loop_var: host

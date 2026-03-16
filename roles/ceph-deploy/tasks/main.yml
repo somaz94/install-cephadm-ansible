@@ -19,7 +19,7 @@
       when: ansible_facts['os_family'] != 'RedHat'
 
     - name: Set hostname for each client host via SSH
-      ansible.builtin.command: 
+      ansible.builtin.command:
         cmd: "ssh -i {{ ssh_key_private }} -o StrictHostKeyChecking=no {{ ssh_user }}@{{ item }} 'sudo hostnamectl set-hostname {{ item }}'"
       loop: "{{ groups['clients'] }}"
       loop_control:
