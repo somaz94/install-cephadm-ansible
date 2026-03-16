@@ -1,4 +1,4 @@
-name: Lint
+name: Lint and Validate
 
 on:
   push:
@@ -36,4 +36,39 @@ jobs:
 
       - name: Run ansible-lint
         run: ansible-lint playbooks/ roles/
+        continue-on-error: true
+
+  syntax-check:
+    name: Ansible Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check site.yml
+        run: ansible-playbook playbooks/site.yml --syntax-check -i inventory.ini
+
+      - name: Syntax check reset.yml
+        run: ansible-playbook playbooks/reset.yml --syntax-check -i inventory.ini
+
+      - name: Syntax check rocksdb-resharding.yml
+        run: ansible-playbook rocksdb-resharding.yml --syntax-check -i inventory.ini
+
+  mypy:
+    name: Python Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          pip install mypy
+          pip install -r requirements.txt
+
+      - name: Run mypy on custom modules
+        run: mypy library/ module_utils/
         continue-on-error: true
