@@ -86,7 +86,7 @@ EXAMPLES = '''
 - name: add a host
   ceph_orch_host:
     name: my-node-01
-    address: 10.10.10.101
+    address: 192.168.42.101
 
 - name: add a host
   ceph_orch_host:
@@ -95,7 +95,7 @@ EXAMPLES = '''
       - mon
       - mgr
       - grp013
-    address: 10.10.10.102
+    address: 192.168.42.102
 
 - name: remove a host
   ceph_orch_host:
