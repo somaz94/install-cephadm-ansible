@@ -1,12 +1,12 @@
 # General cluster settings
 cluster_network: "" # ex. 10.77.101.0/24
-ssh_user: "" # ex. somaz
+ssh_user: "" # ex. ubuntu
 
-# Path ceph.pub (Not Modfiy)
+# Path ceph.pub (Not Modify)
 ssh_key: "/etc/ceph/ceph.pub"
 
 # Your SSH Private Key Path
-ssh_key_private: "" # ex. /home/somaz/.ssh/id_rsa
+ssh_key_private: "" # ex. /home/ubuntu/.ssh/id_rsa
 
 # Ceph configuration
 ceph_config:

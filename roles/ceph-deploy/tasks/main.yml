@@ -68,9 +68,6 @@
       pause:
         seconds: 60
 
-    # - name: Add OSDs and Ensure They Are Ready
-    #   include_tasks: add_osds_and_wait.yml
-
     - name: Include OSD addition tasks for each host in the osds group
       include_tasks: add_osd.yml
       loop: "{{ groups['osds'] }}"

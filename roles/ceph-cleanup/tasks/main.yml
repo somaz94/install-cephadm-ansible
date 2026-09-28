@@ -1,11 +1,9 @@
 ---
-# Stop all non-essential Ceph services
 - name: Stop all Ceph services except 'mgr', 'mon', and 'osd'
   ansible.builtin.shell: |
     bash -c 'sudo ceph orch ls --format=json | jq -r ".[].service_name" | while read service; do if [[ "$service" != "mgr" && "$service" != "mon" && "$service" != "osd" ]]; then echo "Stopping $service..."; sudo ceph orch stop $service; else echo "Skipping $service (cannot be stopped directly)."; fi; done'
   changed_when: false
 
-# Remove OSDs and clean up LVM
 - name: Remove OSDs and cleanup LVM
   block:
     - name: Removing OSDs and cleaning up LVM volumes
@@ -45,7 +43,6 @@
       loop_control:
         loop_var: item
 
-# Cleanup existing Ceph cluster
 - name: Cleanup existing Ceph cluster
   block:
     - name: Proceed with cluster cleanup
